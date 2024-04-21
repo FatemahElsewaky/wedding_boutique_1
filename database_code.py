@@ -18,6 +18,20 @@ c.execute(
           )"""
 )
 
+# Create employee table
+c.execute(
+    """CREATE TABLE IF NOT EXISTS user (
+          employee_id VARCHAR(20) PRIMARY KEY,
+          username VARCHAR(20),
+          password VARCHAR(15),
+          first_name VARCHAR(20),
+          last_name VARCHAR(20),
+          address VARCHAR(50),
+          email VARCHAR(50),
+          phone_number INTEGER,
+          )"""
+)
+
 # Create wedding_dress table
 c.execute(
     """CREATE TABLE IF NOT EXISTS wedding_dress (
@@ -35,12 +49,10 @@ c.execute(
 c.execute(
     """CREATE TABLE IF NOT EXISTS style (
           style_id INTEGER PRIMARY KEY,
-          spring VARCHAR(20),
-          summer VARCHAR(20),
-          fall VARCHAR(20),
-          short VARCHAR(20),
-          long VARCHAR(20),
-          sleeves VARCHAR(20),
+          elegant VARCHAR(20),
+          vintage VARCHAR(20),
+          princess VARCHAR(20),
+          boho VARCHAR(20),
           FOREIGN KEY (style_id) REFERENCES wedding_dress(upc) ON DELETE CASCADE
           )"""
 )
@@ -55,17 +67,6 @@ c.execute(
           )"""
 )
 
-# Create occasion table
-c.execute(
-    """CREATE TABLE IF NOT EXISTS occasion (
-          occasion_id INTEGER PRIMARY KEY,
-          engagement VARCHAR(20),
-          bridal_shower VARCHAR(20),
-          bachelorette VARCHAR(20),
-          FOREIGN KEY (occasion_id) REFERENCES wedding_dress(upc) ON DELETE CASCADE         
-          )"""
-)
-
 # Create brand table
 c.execute(
     """CREATE TABLE IF NOT EXISTS brand (
@@ -75,23 +76,6 @@ c.execute(
           FOREIGN KEY (brand_id) REFERENCES wedding_dress(upc) ON DELETE CASCADE
           )"""
 )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # Create reviews table
 c.execute(
@@ -112,13 +96,27 @@ c.execute(
           order_num INTEGER PRIMARY KEY,
           user_id VARCHAR(20),
           wedding_dress_upc TEXT,
-          return_status TEXT,
           tracking_id TEXT,
           arrival_status TEXT,
           FOREIGN KEY (user_id) REFERENCES user(username) ON DELETE CASCADE,
           FOREIGN KEY (wedding_dress_upc) REFERENCES wedding_dress(upc) ON DELETE CASCADE
           )"""
 )
+
+#import data
+
+# Log in query (user)
+
+
+# Log in query (employee)
+
+
+# Sign up query
+
+
+# Log out query
+
+
 
 conn.commit()
 conn.close()
