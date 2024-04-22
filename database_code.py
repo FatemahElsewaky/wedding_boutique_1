@@ -10,11 +10,22 @@ c.execute(
           password VARCHAR(15),
           first_name VARCHAR(20),
           last_name VARCHAR(20),
-          address VARCHAR(50),
+          address_1 VARCHAR(50),
+          address_2 VARCHAR(50),
           payment_info VARCHAR(20),
           email VARCHAR(50),
           phone_number INTEGER,
           order_history TEXT
+          )"""
+)
+
+# Create payment information table
+c.execute(
+    """CREATE TABLE IF NOT EXISTS payment_info (
+          username VARCHAR(20) PRIMARY KEY,
+          credit_card_num INT(16),
+          CVC INT(3),
+          expiration_date VARCHAR(5)
           )"""
 )
 
