@@ -145,24 +145,26 @@ class MainPage:
         app = HomePage(root)
         root.mainloop()
 
-class LoginPage:
-    def __init__(self, master, homepage):
+class CustomerLoginPage:
+    def __init__(self, master):
         self.master = master
         self.master.title("Login / Sign Up")
         self.master.geometry("1280x1920")
-        self.homepage = homepage
         self.master.configure(bg='#FFF8E7')  # Cream background
 
-        self.label_login = tk.Label(master, text="Login", font=("Lucida Calligraphy", 12, "bold"), bg='#FFF8E7', fg='black')
+        self.label_login = tk.Label(master, text="Login", font=("Lucida Calligraphy", 12, "bold"), bg='#FFF8E7',
+                                    fg='black')
         self.label_login.pack(pady=10)
 
-        self.label_username = tk.Label(master, text="Username:", font=("Lucida Calligraphy", 12), bg='#FFF8E7', fg='black')
+        self.label_username = tk.Label(master, text="Username:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                       fg='black')
         self.label_username.pack()
 
         self.entry_username = tk.Entry(master, bg='white', fg='black')
         self.entry_username.pack()
 
-        self.label_password = tk.Label(master, text="Password:", font=("Lucida Calligraphy", 12), bg='#FFF8E7', fg='black')
+        self.label_password = tk.Label(master, text="Password:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                       fg='black')
         self.label_password.pack()
 
         self.entry_password = tk.Entry(master, show="*", bg='white', fg='black')
@@ -171,16 +173,19 @@ class LoginPage:
         self.login_button = tk.Button(master, text="Login", command=self.login, bg='white', fg='black')
         self.login_button.pack(pady=10)
 
-        self.label_signup = tk.Label(master, text="Sign Up", font=("Lucida Calligraphy", 12, "bold"), bg='#FFF8E7', fg='black')
+        self.label_signup = tk.Label(master, text="Sign Up", font=("Lucida Calligraphy", 12, "bold"), bg='#FFF8E7',
+                                     fg='black')
         self.label_signup.pack(pady=10)
 
-        self.label_new_username = tk.Label(master, text="New Username:", font=("Lucida Calligraphy", 12), bg='#FFF8E7', fg='black')
+        self.label_new_username = tk.Label(master, text="New Username:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                           fg='black')
         self.label_new_username.pack()
 
         self.entry_new_username = tk.Entry(master, bg='white', fg='black')
         self.entry_new_username.pack()
 
-        self.label_new_password = tk.Label(master, text="New Password:", font=("Lucida Calligraphy", 12), bg='#FFF8E7', fg='black')
+        self.label_new_password = tk.Label(master, text="New Password:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                           fg='black')
         self.label_new_password.pack()
 
         self.entry_new_password = tk.Entry(master, show="*", bg='white', fg='black')
@@ -221,6 +226,94 @@ class LoginPage:
         else:
             self.message.config(text="Please enter both username and password")
 
+class EmployeeLoginPage:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Login / Sign Up")
+        self.master.geometry("1280x1920")
+        self.master.configure(bg='#FFF8E7')  # Cream background
+
+        self.label_login = tk.Label(master, text="Login", font=("Lucida Calligraphy", 12, "bold"), bg='#FFF8E7',
+                                    fg='black')
+        self.label_login.pack(pady=10)
+
+        self.label_employee_id = tk.Label(master, text="Employee ID:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                       fg='black')
+        self.label_employee_id.pack()
+
+        self.entry_employee_id = tk.Entry(master, bg='white', fg='black')
+        self.entry_employee_id.pack()
+
+        self.label_username = tk.Label(master, text="Username:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                       fg='black')
+        self.label_username.pack()
+
+        self.entry_username = tk.Entry(master, bg='white', fg='black')
+        self.entry_username.pack()
+
+        self.label_password = tk.Label(master, text="Password:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                       fg='black')
+        self.label_password.pack()
+
+        self.entry_password = tk.Entry(master, show="*", bg='white', fg='black')
+        self.entry_password.pack()
+
+        self.login_button = tk.Button(master, text="Login", command=self.login, bg='white', fg='black')
+        self.login_button.pack(pady=10)
+
+
+    def login(self):
+        username = self.entry_username.get()
+        password = self.entry_password.get()
+        employee_id = self.entry_employee_id.get()
+
+
+
+        # Placeholder authentication logic
+        # Replace this with your actual authentication logic
+        if username == "admin" and password == "admin" and employee_id == "admin":
+            self.master.destroy()  # Close the login window
+            root = tk.Tk()  # Create a new Tkinter root window for the main page
+            app = MainPage(root)  # Open the choose to edit account or database
+            root.mainloop()  # Show the homepage
+        else:
+            self.message.config(text="Invalid username or password")
+
+class LoginDecide:
+    def __init__(self, master, homepage):
+        self.master = master
+        self.master.title("Login Decision")
+        self.master.geometry("1280x1920")
+        self.homepage = homepage
+        self.master.configure(bg='#FFF8E7')  # Cream background
+        self.label = tk.Label(master, text="Customer or Employee", font=("Brush Script MT", 48), bg='#FFF8E7',
+                              fg='black')
+        self.label.pack(pady=20)
+
+        login_frame = tk.Frame(master, pady=20)
+        login_frame.pack()
+
+        customer_login_button = tk.Button(login_frame, text="Login as Customer", command=self.login_customer, height=2,
+                                          width=20)
+        customer_login_button.pack(side=tk.LEFT, padx=10)
+
+        employee_btn = tk.Button(login_frame, text="Login as Employee", command=self.login_employee, height=2, width=20)
+        employee_btn.pack(side=tk.LEFT, padx=10)
+
+
+
+    def login_customer(self):
+        self.master.destroy()
+        root = tk.Tk()  # Create a new Tkinter root window for the main page
+        app = CustomerLoginPage(root)  # Open the main page
+        root.mainloop()  # Show the homepage
+
+    def login_employee(self):
+        self.master.destroy()
+        root = tk.Tk()  # Create a new Tkinter root window for the main page
+        app = EmployeeLoginPage(root)  # Open the main page
+        root.mainloop()  # Show the homepage
+
 class HomePage:
     def __init__(self, master):
         self.master = master
@@ -245,7 +338,7 @@ class HomePage:
         # Add code to open the login window
         self.master.iconify()  # Minimize the homepage window
         login_window = tk.Toplevel(self.master)
-        LoginPage(login_window, self)
+        LoginDecide(login_window, self)
         pass
 
 def main():
