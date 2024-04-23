@@ -2,6 +2,67 @@ import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 
+class ProfilePage:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("User Profile")
+        self.master.geometry("1280x800")  # Adjusted height for better visibility
+
+        # Placeholder data for the user
+        self.user_data = {
+            "Username": "johndoe",
+            "First Name": "John",
+            "Last Name": "Doe",
+            "Address": "1234 Bridal St",
+            "Payment Info": "Visa **** 4242",
+            "Email": "johndoe@example.com",
+            "Phone Number": "1234567890"
+        }
+
+        # Display name and last name in a bigger font at the top center
+        name_label = tk.Label(master, text=f"{self.user_data['First Name']} {self.user_data['Last Name']}", font=("Helvetica", 48, "bold"))
+        name_label.pack(pady=20)
+
+        # Adding a line for separation before username
+        separator_before_username = tk.Frame(master, height=2, bd=1, relief="groove")
+        separator_before_username.pack(fill="x", padx=20, pady=10)
+
+        # Display username in a better position
+        username_label = tk.Label(master, text=f"Username: {self.user_data['Username']}", font=("Helvetica", 12, "bold"))
+        username_label.pack(pady=10)
+
+        # Adding a line for separation after username
+        separator_after_username = tk.Frame(master, height=2, bd=1, relief="groove")
+        separator_after_username.pack(fill="x", padx=20, pady=10)
+
+        # Initial row index for other information entries
+        row = 2
+        # Display the rest of the information starting below the username section
+        self.entry_fields = {}
+        self.labels = {}
+        for key, value in self.user_data.items():
+            if key not in ["First Name", "Last Name", "Username"]:
+                label = tk.Label(master, text=f"{key}: ", font=("Helvetica", 12, "bold"))
+                label.place(x=master.winfo_screenwidth() // 2 - 150, y=250 + row * 30, anchor="e")
+
+                entry = tk.Entry(master, font=("Helvetica", 12))
+                entry.insert(0, value)
+                entry.place(x=master.winfo_screenwidth() // 2 - 100, y=250 + row * 30, anchor="w")
+                entry.config(state="disabled")
+                self.entry_fields[key] = entry
+
+                edit_button = tk.Button(master, text="Edit", command=lambda k=key, e=entry: self.toggle_edit_field(k, e))
+                edit_button.place(x=master.winfo_screenwidth() // 2 + 100, y=250 + row * 30, anchor="w")
+
+                row += 1
+
+    def toggle_edit_field(self, field, entry):
+        if entry["state"] == "disabled":
+            entry.config(state="normal")
+            entry.focus_set()
+        else:
+            entry.config(state="disabled")
+
 
 class MainPage:
     def __init__(self, master):
@@ -73,10 +134,17 @@ class MainPage:
     def show_profile(self):
         # Placeholder method to show account profile page
         print("Showing Profile Page")
+        root = tk.Tk()
+        app = ProfilePage(root)
+        root.mainloop()
+
 
     def logout(self):
-        # Placeholder method to logout
-        print("Logging out...")
+        print("You logged out successfully.")
+        self.master.destroy()
+        root = tk.Tk()
+        app = HomePage(root)
+        root.mainloop()
 
 class LoginPage:
     def __init__(self, master, homepage):
