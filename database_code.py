@@ -45,13 +45,11 @@ c.execute(
 # Create wedding_dress table
 c.execute(
     """CREATE TABLE IF NOT EXISTS wedding_dress (
-          upc INTEGER PRIMARY KEY,
+          upc INTEGER(12) PRIMARY KEY,
           name VARCHAR(20),
           price REAL,
-          size CHAR[5],
           color VARCHAR(20),
           description TEXT,
-          on_hand_count INTEGER
           )"""
 )
 
