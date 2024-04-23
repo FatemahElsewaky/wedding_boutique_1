@@ -56,7 +56,7 @@ c.execute(
 # Create style table
 c.execute(
     """CREATE TABLE IF NOT EXISTS style (
-          style_id INTEGER PRIMARY KEY,
+          style_id INTEGER(12) PRIMARY KEY,
           elegant VARCHAR(20),
           vintage VARCHAR(20),
           princess VARCHAR(20),
@@ -68,7 +68,7 @@ c.execute(
 # Create collection table
 c.execute(
     """CREATE TABLE IF NOT EXISTS collection (
-          collection_id INTEGER PRIMARY KEY,
+          collection_id INTEGER(12) PRIMARY KEY,
           c1 VARCHAR(20),
           c2 VARCHAR(20),
           FOREIGN KEY (collection_id) REFERENCES wedding_dress(upc) ON DELETE CASCADE
@@ -78,7 +78,7 @@ c.execute(
 # Create brand table
 c.execute(
     """CREATE TABLE IF NOT EXISTS brand (
-          brand_id INTEGER PRIMARY KEY,
+          brand_id INTEGER(12) PRIMARY KEY,
           b1 VARCHAR(20),
           b2 VARCHAR(20),
           FOREIGN KEY (brand_id) REFERENCES wedding_dress(upc) ON DELETE CASCADE
@@ -89,7 +89,7 @@ c.execute(
 c.execute(
     """CREATE TABLE IF NOT EXISTS reviews (
           user_id VARCHAR(20),
-          wedding_dress_upc TEXT,
+          wedding_dress_upc INTEGER(12),
           comment TEXT,
           stars INTEGER,
           PRIMARY KEY (user_id, wedding_dress_upc),
