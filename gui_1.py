@@ -1,12 +1,14 @@
 import tkinter as tk
-from tkinter import *
-from tkinter import filedialog
+from tkinter import messagebox
+from tkinter import Canvas, Scrollbar, Frame
+
 
 class ProfilePage:
     def __init__(self, master):
         self.master = master
         self.master.title("User Profile")
         self.master.geometry("1280x800")  # Adjusted height for better visibility
+        self.master.configure(bg='#FFF8E7')  # Cream background
 
         # Placeholder data for the user
         self.user_data = {
@@ -20,39 +22,44 @@ class ProfilePage:
         }
 
         # Display name and last name in a bigger font at the top center
-        name_label = tk.Label(master, text=f"{self.user_data['First Name']} {self.user_data['Last Name']}", font=("Helvetica", 48, "bold"))
+        name_label = tk.Label(master, text=f"{self.user_data['First Name']} {self.user_data['Last Name']}",
+                              font=("Lucida Calligraphy", 36), bg='#FFF8E7', fg='black')
         name_label.pack(pady=20)
 
-        # Adding a line for separation before username
-        separator_before_username = tk.Frame(master, height=2, bd=1, relief="groove")
-        separator_before_username.pack(fill="x", padx=20, pady=10)
+        # Adding a line for separation
+        separator1 = tk.Frame(master, height=2, bd=1, relief="groove", bg='black')
+        separator1.pack(fill="x", padx=20, pady=10)
 
         # Display username in a better position
-        username_label = tk.Label(master, text=f"Username: {self.user_data['Username']}", font=("Helvetica", 12, "bold"))
+        username_label = tk.Label(master, text=f"Username: {self.user_data['Username']}",
+                                  font=("Brush Script MT", 20), bg='#FFF8E7', fg='black')
         username_label.pack(pady=10)
 
-        # Adding a line for separation after username
-        separator_after_username = tk.Frame(master, height=2, bd=1, relief="groove")
-        separator_after_username.pack(fill="x", padx=20, pady=10)
+        # Adding more separation
+        separator2 = tk.Frame(master, height=2, bd=1, relief="groove", bg='black')
+        separator2.pack(fill="x", padx=20, pady=10)
 
-        # Initial row index for other information entries
         row = 2
-        # Display the rest of the information starting below the username section
+        # Display the rest of the information in the middle of the page
         self.entry_fields = {}
         self.labels = {}
         for key, value in self.user_data.items():
             if key not in ["First Name", "Last Name", "Username"]:
-                label = tk.Label(master, text=f"{key}: ", font=("Helvetica", 12, "bold"))
-                label.place(x=master.winfo_screenwidth() // 2 - 150, y=250 + row * 30, anchor="e")
+                label = tk.Label(master, text=f"{key}: ", font=("Brush Script MT", 16),
+                                 bg='#FFF8E7', fg='black')
+                label.place(x=640 - 150, y=150 + row * 30, anchor="e")
+                self.labels[key] = label
 
-                entry = tk.Entry(master, font=("Helvetica", 12))
+                entry = tk.Entry(master, font=("Arial", 12), bg='white', fg='black')
                 entry.insert(0, value)
-                entry.place(x=master.winfo_screenwidth() // 2 - 100, y=250 + row * 30, anchor="w")
+                entry.place(x=640 - 100, y=150 + row * 30, anchor="w")
                 entry.config(state="disabled")
                 self.entry_fields[key] = entry
 
-                edit_button = tk.Button(master, text="Edit", command=lambda k=key, e=entry: self.toggle_edit_field(k, e))
-                edit_button.place(x=master.winfo_screenwidth() // 2 + 100, y=250 + row * 30, anchor="w")
+                edit_button = tk.Button(master, text="Edit",
+                                        command=lambda k=key, e=entry: self.toggle_edit_field(k, e))
+
+                edit_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
 
                 row += 1
 
@@ -69,8 +76,9 @@ class MainPage:
         self.master = master
         self.master.title("Main Page")
         self.master.geometry("1280x1920")
+        self.master.configure(bg='#FFF8E7')  # Cream background
 
-        self.label = tk.Label(master, text="H.E.M.", font=("Helvetica", 48))
+        self.label = tk.Label(master, text="H.E.M.", font=("Lucida Calligraphy", 48), bg='#FFF8E7', fg='black')
         self.label.pack(pady=20)
 
         # Set background color for the menu bar
@@ -82,7 +90,7 @@ class MainPage:
 
         # Create a dropdown button for the account
         self.account_menu = tk.Menubutton(menu_frame, text="Account", compound=tk.LEFT, bg=menu_bg_color,
-                                          font=("Helvetica", 18))
+                                          font=("Brush Script MT", 18))
         self.account_menu.menu = tk.Menu(self.account_menu, tearoff=0)
         self.account_menu["menu"] = self.account_menu.menu
 
@@ -95,37 +103,228 @@ class MainPage:
         # Configure button style to remove button shape
         button_style = {"border": 0, "bg": menu_bg_color, "width": 13, "height": 2}
 
+        buttons_data = [
+            ("Wedding Dresses",
+             self.show_wedding_dresses),
+            ("Collections", self.show_collections),
+            ("Styles", self.show_styles),
+            ("Brands", self.show_brands)
+        ]
+
         # Create menu buttons
-        button_wedding = tk.Button(menu_frame, text="Wedding Dresses", font=("Helvetica", 28),
-                                   command=self.show_wedding_dresses, **button_style)
-        button_wedding.pack(side=tk.LEFT, padx=10)
-
-        button_collections = tk.Button(menu_frame, text="Collections", font=("Helvetica", 28),
-                                       command=self.show_collections, **button_style)
-        button_collections.pack(side=tk.LEFT, padx=10)
-
-        button_styles = tk.Button(menu_frame, text="Styles", font=("Helvetica", 28),
-                                  command=self.show_styles, **button_style)
-        button_styles.pack(side=tk.LEFT, padx=10)
-
-        button_brands = tk.Button(menu_frame, text="Brands", font=("Helvetica", 28),
-                                  command=self.show_brands, **button_style)
-        button_brands.pack(side=tk.LEFT, padx=10)
+        for text, command in buttons_data:
+            button = tk.Button(menu_frame, text=text, font=("Brush Script MT", 24),
+                               command=command, **button_style)
+            button.pack(side=tk.LEFT, padx=10)
 
         # Center the menu bar horizontally
         menu_frame.place(relx=.5, rely=.15, anchor=tk.CENTER)
 
     def show_wedding_dresses(self):
-        # Placeholder method to display wedding dresses
-        print("Displaying Wedding Dresses")
+        """Display 20 boxes for wedding dresses, with scrolling enabled."""
+        # Clear the current content
+        for widget in self.master.winfo_children():
+            widget.destroy()
+
+        # Title label for the wedding dresses page
+        self.label = tk.Label(self.master, text="Wedding Dresses", font=("Lucida Calligraphy", 48), bg='#FFF8E7', fg='black')
+        self.label.pack(pady=20)
+
+        # Create a frame to hold the canvas and scrollbar
+        container = tk.Frame(self.master)
+        container.pack(fill="both", expand=True)
+
+        # Create a canvas and a scrollbar
+        canvas = tk.Canvas(container, bg='#FFF8E7')
+        scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg='#FFF8E7')
+
+        # Configure the canvas
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Pack everything
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        # Bind the frame to the canvas
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        # Define the size of the box and the space between them
+        box_size = 230  # Size of the box
+        spacing = 48    # Space between the boxes (about an inch)
+
+        # Create 20 boxes with labels underneath
+        for i in range(1, 21):
+            frame = tk.Frame(scrollable_frame, height=box_size, width=box_size, bg='white', bd=2, relief="groove")
+            frame.grid(row=(i-1)//4, column=(i-1)%4, padx=spacing, pady=spacing)
+            label = tk.Label(scrollable_frame, text=f"Dress {i}", font=("Arial", 18), bg='#FFF8E7')
+            label.grid(row=(i-1)//4, column=(i-1)%4, sticky="n")
+
+        # Back Button
+        back_button = tk.Button(self.master, text="Back", font=("Lucida Calligraphy", 18), command=self.show_main_page)
+        back_button.pack(pady=10)
+
+        # Update the window to reconfigure its size and position
+        self.master.geometry("1280x800")
+
+
+
 
     def show_collections(self):
-        # Placeholder method to display bridesmaid dresses
-        print("Displaying Bridesmaid Dresses")
+        # Clear the current content if necessary, you might add a method to clear the window
+        for widget in self.master.winfo_children():
+            widget.destroy()
+
+        self.label = tk.Label(self.master, text="Collections", font=("Lucida Calligraphy", 48), bg='#FFF8E7', fg='black')
+        self.label.pack(pady=20)
+
+        # Frame for collections
+        collections_frame = tk.Frame(self.master, bg='#FFF8E7')
+        collections_frame.pack(expand=True, fill="both", padx=20, pady=20)
+
+        # Box 1 for Collection 1
+        box1 = tk.LabelFrame(collections_frame, text="Eternal Whisper", font=("Brush Script MT", 24), bg='white', fg='black', labelanchor='n', width=500, height=300)
+        box1.pack(side="left", expand=True, fill="both", padx=10, pady=10)
+        box1.pack_propagate(False)
+        info1 = tk.Label(box1, text="Classic and timeless bridal gowns.", bg='white', fg='black', font=("Arial", 16))
+        info1.pack(expand=True)
+        box1.bind("<Button-1>", lambda e: messagebox.showinfo("Collection", "Eternal Whisper: More details here..."))
+
+        # Box 2 for Collection 2
+        box2 = tk.LabelFrame(collections_frame, text="Celestial Bloom", font=("Brush Script MT", 24), bg='white', fg='black', labelanchor='n', width=500, height=300)
+        box2.pack(side="right", expand=True, fill="both", padx=10, pady=10)
+        box2.pack_propagate(False)
+        info2 = tk.Label(box2, text="Modern designs with a touch of the stars.", bg='white', fg='black', font=("Arial", 16))
+        info2.pack(expand=True)
+        box2.bind("<Button-1>", lambda e: messagebox.showinfo("Collection", "Celestial Bloom: More details here..."))
+
+        # Back Button
+        back_button = tk.Button(self.master, text="Back", font=("Lucida Calligraphy", 18), command=self.show_main_page)
+        back_button.pack(pady=10)
+
+        # Update the window to reconfigure its size and position
+        self.master.geometry("1280x800")  # Resize window back to the main app size
+
+    def setup_homepage(self):
+        # Clear existing content
+        for widget in self.master.winfo_children():
+            widget.destroy()
+
+        # Add components for the home page
+        welcome_label = tk.Label(self.master, text="Welcome to Our Bridal Boutique!",
+                                 font=("Lucida Calligraphy", 36), bg='#FFF8E7', fg='black')
+        welcome_label.pack(pady=20)
+
+        login_button = tk.Button(self.master, text="Login", command=self.open_login, width=20, height=4,
+                                 bg="black", fg="white", font=("Lucida Calligraphy", 36))
+        login_button.pack(pady=10)
+
+        # More components like registration, info, etc.
+    def setup_main_ui(self):
+        """Sets up or resets the main UI components to their original state."""
+        # Clear the window
+        for widget in self.master.winfo_children():
+            widget.destroy()
+
+        self.master.title("Main Page")
+        self.master.geometry("1280x1920")
+        self.master.configure(bg='#FFF8E7')  # Cream background
+
+        # Main label with the logo or title
+        self.label = tk.Label(self.master, text="H.E.M.", font=("Lucida Calligraphy", 48), bg='#FFF8E7', fg='black')
+        self.label.pack(pady=20)
+
+        # Set background color for the menu bar
+        menu_bg_color = self.master.cget("bg")
+
+        # Create a frame to hold the menu bar
+        menu_frame = tk.Frame(self.master, bg=menu_bg_color)
+        menu_frame.pack(side=tk.TOP, fill="x", pady=10)
+
+        # Dropdown button for the account
+        self.account_menu = tk.Menubutton(menu_frame, text="Account", compound=tk.LEFT, bg=menu_bg_color, font=("Brush Script MT", 18))
+        self.account_menu.menu = tk.Menu(self.account_menu, tearoff=0)
+        self.account_menu["menu"] = self.account_menu.menu
+
+        # Add options to the account menu
+        self.account_menu.menu.add_command(label="Profile", command=self.show_profile)
+        self.account_menu.menu.add_command(label="Logout", command=self.logout)
+        self.account_menu.pack(side=tk.RIGHT, padx=10)
+
+        # Configure button style to remove button shape
+        button_style = {"border": 0, "bg": menu_bg_color, "width": 13, "height": 2}
+
+        # Button data for navigation
+        buttons_data = [
+            ("Wedding Dresses", self.show_wedding_dresses),
+            ("Collections", self.show_collections),
+            ("Styles", self.show_styles),
+            ("Brands", self.show_brands)
+        ]
+
+        # Create menu buttons
+        for text, command in buttons_data:
+            button = tk.Button(menu_frame, text=text, font=("Brush Script MT", 24), command=command, **button_style)
+            button.pack(side=tk.LEFT, padx=10)
+
+        # Center the menu bar horizontally
+        menu_frame.place(relx=.5, rely=.15, anchor=tk.CENTER)
+
+    def show_main_page(self):
+        """Shows the main page by resetting UI to its initial state."""
+        self.setup_main_ui()  # Re-setup the UI
+
+    def show_profile(self):
+        # Placeholder for showing the user's profile
+        print("Profile Page")
 
     def show_styles(self):
-        # Placeholder method to display evening gowns
-        print("Displaying Evening Gowns")
+        """Display style options with four distinct categories."""
+        # Clear the current content
+        for widget in self.master.winfo_children():
+            widget.destroy()
+
+        # Title label for the styles page
+        self.label = tk.Label(self.master, text="Choose Your Style", font=("Lucida Calligraphy", 48), bg='#FFF8E7', fg='black')
+        self.label.pack(pady=20)
+
+        # Frame for styles
+        styles_frame = tk.Frame(self.master, bg='#FFF8E7')
+        styles_frame.pack(expand=True, fill="both", padx=20, pady=20)
+
+        # Data for each style box
+        styles_data = [
+            ("Elegant", "Sophisticated and refined gowns."),
+            ("Boho", "Relaxed and free-spirited designs."),
+            ("Vintage", "Timeless classics with an old-world charm."),
+            ("Princess", "Fairy-tale inspired, dreamy and grand.")
+        ]
+
+        # Create style boxes
+        for style, description in styles_data:
+            self.create_style_box(styles_frame, style, description)
+
+            # Back Button
+        back_button = tk.Button(self.master, text="Back", font=("Lucida Calligraphy", 18),
+                                    command=self.show_main_page)
+        back_button.pack(pady=10)
+
+        # Update the window to reconfigure its size and position
+        self.master.geometry("1280x800")  # Resize window back to the main app size
+
+    def create_style_box(self, parent, title, description):
+        """Helper function to create a styled box for the styles page."""
+        box = tk.LabelFrame(parent, text=title, font=("Brush Script MT", 24), bg='white', fg='black', labelanchor='n',
+                            width=300, height=300)
+        box.pack(side="left", expand=True, fill="both", padx=10, pady=10)
+        box.pack_propagate(False)
+        info = tk.Label(box, text=description, bg='white', fg='black', font=("Arial", 16))
+        info.pack(expand=True)
+        box.bind("<Button-1>", lambda e: messagebox.showinfo(title, f"{title} style: {description}"))
 
     def show_brands(self):
         # Placeholder method to display evening gowns
@@ -138,7 +337,6 @@ class MainPage:
         app = ProfilePage(root)
         root.mainloop()
 
-
     def logout(self):
         print("You logged out successfully.")
         self.master.destroy()
@@ -146,53 +344,58 @@ class MainPage:
         app = HomePage(root)
         root.mainloop()
 
+
 class LoginPage:
     def __init__(self, master, homepage):
         self.master = master
         self.master.title("Login / Sign Up")
         self.master.geometry("1280x1920")
         self.homepage = homepage
+        self.master.configure(bg='#FFF8E7')  # Cream background
 
-        self.label_login = tk.Label(master, text="Login", font=("Helvetica", 12, "bold"))
+        self.label_login = tk.Label(master, text="Login", font=("Lucida Calligraphy", 12, "bold"), bg='#FFF8E7',
+                                    fg='black')
         self.label_login.pack(pady=10)
 
-        self.label_username = tk.Label(master, text="Username:")
+        self.label_username = tk.Label(master, text="Username:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                       fg='black')
         self.label_username.pack()
 
-        self.entry_username = tk.Entry(master)
+        self.entry_username = tk.Entry(master, bg='white', fg='black')
         self.entry_username.pack()
 
-        self.label_password = tk.Label(master, text="Password:")
+        self.label_password = tk.Label(master, text="Password:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                       fg='black')
         self.label_password.pack()
 
-        self.entry_password = tk.Entry(master, show="*")
+        self.entry_password = tk.Entry(master, show="*", bg='white', fg='black')
         self.entry_password.pack()
 
-        self.login_button = tk.Button(master, text="Login", command=self.login)
+        self.login_button = tk.Button(master, text="Login", command=self.login, bg='white', fg='black')
         self.login_button.pack(pady=10)
 
-        self.label_signup = tk.Label(master, text="Sign Up", font=("Helvetica", 12, "bold"))
+        self.label_signup = tk.Label(master, text="Sign Up", font=("Lucida Calligraphy", 12, "bold"), bg='#FFF8E7',
+                                     fg='black')
         self.label_signup.pack(pady=10)
 
-        self.label_new_username = tk.Label(master, text="New Username:")
+        self.label_new_username = tk.Label(master, text="New Username:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                           fg='black')
         self.label_new_username.pack()
 
-        self.entry_new_username = tk.Entry(master)
+        self.entry_new_username = tk.Entry(master, bg='white', fg='black')
         self.entry_new_username.pack()
 
-        self.label_new_password = tk.Label(master, text="New Password:")
+        self.label_new_password = tk.Label(master, text="New Password:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                           fg='black')
         self.label_new_password.pack()
 
-        self.entry_new_password = tk.Entry(master, show="*")
+        self.entry_new_password = tk.Entry(master, show="*", bg='white', fg='black')
         self.entry_new_password.pack()
 
-        self.signup_button = tk.Button(master, text="Sign Up", command=self.signup)
+        self.signup_button = tk.Button(master, text="Sign Up", command=self.signup, bg='white', fg='black')
         self.signup_button.pack(pady=10)
 
-        self.message = tk.Label(master, text="", fg="red")
-        self.message.pack()
-
-        self.message = tk.Label(master, text="", fg="red")
+        self.message = tk.Label(master, text="", fg="red", bg='#FFF8E7')
         self.message.pack()
 
     def login(self):
@@ -225,26 +428,26 @@ class LoginPage:
             self.message.config(text="Please enter both username and password")
 
 
-
 class HomePage:
     def __init__(self, master):
         self.master = master
         self.master.title("Bridal Website")
-
-        # Set window size to 800x600 pixels
         self.master.geometry("1280x1920")
+        self.master.configure(bg='#FFF8E7')  # Cream background
 
-        self.label = tk.Label(master, text="H.E.M.", font=("Helvetica", 48))
+        self.label = tk.Label(master, text="H.E.M.", font=("Lucida Calligraphy", 48), bg='#FFF8E7', fg='black')
         self.label.pack(pady=20)
 
-        self.label_2 = tk.Label(master, text="Welcome to our Bridal Website!", font=("Helvetica", 48))
+        self.label_2 = tk.Label(master, text="Welcome to our Bridal Website!", font=("Brush Script MT", 48),
+                                bg='#FFF8E7', fg='black')
         self.label_2.pack(pady=20)
 
         self.login_button = tk.Button(master, text="Login", command=self.open_login, width=20, height=4,
-                                      bg="blue", fg="white", font=("Helvetica", 36))
+                                      bg="black", fg="black", font=("Lucida Calligraphy", 36))
         self.login_button.pack(pady=10)
 
-        self.exit_button = tk.Button(master, text="Exit", command=master.quit)
+        self.exit_button = tk.Button(master, text="Exit", command=master.quit, bg="black", fg="black",
+                                     font=("Lucida Calligraphy", 36))
         self.exit_button.pack(pady=10)
 
     def open_login(self):
@@ -253,7 +456,6 @@ class HomePage:
         login_window = tk.Toplevel(self.master)
         LoginPage(login_window, self)
         pass
-
 
 
 def main():
