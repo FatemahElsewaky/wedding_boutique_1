@@ -157,6 +157,43 @@ def display_table_data():
 # Call the function to display table data
 display_table_data()
 
+# Function to display view data in a table format
+def display_view_data(view_name):
+    try:
+        # Fetch all rows from the view
+        c.execute(f"SELECT * FROM {view_name}")
+        rows = c.fetchall()
+
+        if not rows:
+            print(f"No data found in the view {view_name}")
+            return
+
+        # Get column names
+        c.execute(f"PRAGMA table_info({view_name})")
+        column_names = [description[1] for description in c.fetchall()]
+
+        # Create a PrettyTable object
+        view_table = PrettyTable(column_names)
+
+        # Add rows to the table
+        for row in rows:
+            view_table.add_row(row)
+
+        # Display the view data
+        print(f"\nView: {view_name}")
+        print(view_table)
+
+    except sqlite3.Error as e:
+        print(f"Error displaying data from the view {view_name}: {e}")
+
+
+# Call the function to display view data
+display_view_data("dress_info_users")
+display_view_data("dress_info_employee")
+display_view_data("users_info")
+
+
+
 # Log in query (user)
 def u_check_login(username, password):
     """Returns True if the username and password match a user in the database, False otherwise"""
