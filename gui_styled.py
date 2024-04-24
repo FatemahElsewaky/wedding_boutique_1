@@ -1,4 +1,6 @@
 import tkinter as tk
+from database_code import *
+import string
 
 class ProfilePage:
     def __init__(self, master):
@@ -145,6 +147,26 @@ class MainPage:
         app = HomePage(root)
         root.mainloop()
 
+
+def verify_password(password):
+    # At least 8 characters
+    if len(password) < 8:
+        return False
+
+    # At least one uppercase letter
+    if not any(char.isupper() for char in password):
+        return False
+
+    # At least one special character
+    if not any(char in string.punctuation for char in password):
+        return False
+
+    # At least one number
+    if not any(char.isdigit() for char in password):
+        return False
+
+    return True
+
 class CustomerLoginPage:
     def __init__(self, master):
         self.master = master
@@ -191,6 +213,20 @@ class CustomerLoginPage:
         self.entry_new_password = tk.Entry(master, show="*", bg='white', fg='black')
         self.entry_new_password.pack()
 
+        self.label_firstname = tk.Label(master, text="First Name:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                           fg='black')
+        self.label_firstname.pack()
+
+        self.entry_firstname = tk.Entry(master, bg='white', fg='black')
+        self.entry_firstname.pack()
+
+        self.label_lastname = tk.Label(master, text="Last Name:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+                                           fg='black')
+        self.label_lastname.pack()
+
+        self.entry_lastname = tk.Entry(master, bg='white', fg='black')
+        self.entry_lastname.pack()
+
         self.signup_button = tk.Button(master, text="Sign Up", command=self.signup, bg='white', fg='black')
         self.signup_button.pack(pady=10)
 
@@ -203,7 +239,7 @@ class CustomerLoginPage:
 
         # Placeholder authentication logic
         # Replace this with your actual authentication logic
-        if username == "admin" and password == "admin":
+        if u_check_login(username, password):
             self.master.destroy()  # Close the login window
             root = tk.Tk()  # Create a new Tkinter root window for the main page
             app = MainPage(root)  # Open the main page
@@ -212,19 +248,29 @@ class CustomerLoginPage:
             self.message.config(text="Invalid username or password")
 
     def signup(self):
+        # Reset the error message label
+        self.message.config(text="")
         new_username = self.entry_new_username.get()
         new_password = self.entry_new_password.get()
+        firstname = self.entry_firstname.get()
+        lastname = self.entry_lastname.get()
 
-        # Placeholder sign up logic
-        # Replace this with your actual sign up logic
-        if new_username and new_password:
-            self.message.config(text="Sign up successful!")
-            self.master.destroy()  # Close the login window
-            root = tk.Tk()  # Create a new Tkinter root window for the main page
-            app = MainPage(root)  # Open the main page
-            root.mainloop()
+        # Verify password
+        if not verify_password(new_password):
+            self.message.config(text="Password does not meet the requirements.")
+        elif not new_username or not new_password:
+            self.message.config(text="Please enter both username and password.")
         else:
-            self.message.config(text="Please enter both username and password")
+            if create_user(new_username, new_password, firstname, lastname,  "", "", "", ""):
+                self.message.config(text="Sign up successful!")
+                self.master.destroy()  # Close the login window
+                root = tk.Tk()  # Create a new Tkinter root window for the main page
+                app = MainPage(root)  # Open the main page
+                root.mainloop()
+            else:
+                self.message.config(text="Failed to sign up. Please try again.")
+
+
 
 class EmployeeLoginPage:
     def __init__(self, master):
@@ -267,17 +313,15 @@ class EmployeeLoginPage:
         password = self.entry_password.get()
         employee_id = self.entry_employee_id.get()
 
-
-
         # Placeholder authentication logic
         # Replace this with your actual authentication logic
-        if username == "admin" and password == "admin" and employee_id == "admin":
+        if e_check_login(employee_id, username, password):
             self.master.destroy()  # Close the login window
             root = tk.Tk()  # Create a new Tkinter root window for the main page
             app = MainPage(root)  # Open the choose to edit account or database
             root.mainloop()  # Show the homepage
         else:
-            self.message.config(text="Invalid username or password")
+            self.message.config(text="Invalid employee ID, username, or password")
 
 class LoginDecide:
     def __init__(self, master, homepage):
