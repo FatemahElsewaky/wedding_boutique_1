@@ -110,6 +110,25 @@ c.execute(
           )"""
 )
 
+# # Create dress information view as a user
+# c.execute(
+#     """CREATE VIEW users_info AS
+#         SELECT u.username, u.password, u.first_name, u.last_name, u.address_1, u.email, u.phone_number, u.order_history,
+#                 p.credit_card_num, p.CVC, p.expiration_date
+#                 FROM users u
+#                 LEFT JOIN payment_info p ON u.username = p.payment_id"""
+# )
+
+# # Create dress information view as an employee
+# c.execute(
+#     """CREATE VIEW dress_info_employee AS
+#             SELECT wd.upc, wd.name, wd.price, wd.color, wd.description,
+#                    s.elegant, s.vintage, s.princess, s.boho,
+#                    c.c1, c.c2
+#             FROM wedding_dress wd
+#             LEFT JOIN style s ON wd.upc = s.style_id
+#             LEFT JOIN collection c ON wd.upc = c.collection_id"""
+# )
 
 
 #import data
