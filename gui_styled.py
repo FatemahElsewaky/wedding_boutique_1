@@ -3,74 +3,96 @@ from database_code import *
 import string
 
 class ProfilePage:
-    def __init__(self, master):
+    def __init__(self, master, username):
         self.master = master
         self.master.title("User Profile")
         self.master.geometry("1280x800")  # Adjusted height for better visibility
         self.master.configure(bg='#FFF8E7')  # Cream background
 
-        # Placeholder data for the user
-        self.user_data = {
-            "Username": "johndoe",
-            "First Name": "John",
-            "Last Name": "Doe",
-            "Address": "1234 Bridal St",
-            "Payment Info": "Visa **** 4242",
-            "Email": "johndoe@example.com",
-            "Phone Number": "1234567890"
-        }
+        # Fetch user data from the database
+        self.user_data = fetch_user_data(username)
 
-        # Display name and last name in a bigger font at the top center
-        name_label = tk.Label(master, text=f"{self.user_data['First Name']} {self.user_data['Last Name']}", 
-                              font=("Lucida Calligraphy", 36), bg='#FFF8E7', fg='black')
-        name_label.pack(pady=20)
+        if self.user_data:
+            # Display name and last name in a bigger font at the top center
+            name_label = tk.Label(master, text=f"{self.user_data['first_name']} {self.user_data['last_name']}",
+                                  font=("Lucida Calligraphy", 36), bg='#FFF8E7', fg='black')
+            name_label.pack(pady=20)
 
-        # Adding a line for separation
-        separator1 = tk.Frame(master, height=2, bd=1, relief="groove", bg='black')
-        separator1.pack(fill="x", padx=20, pady=10)
+            # Adding a line for separation
+            separator1 = tk.Frame(master, height=2, bd=1, relief="groove", bg='black')
+            separator1.pack(fill="x", padx=20, pady=10)
 
-        # Display username in a better position
-        username_label = tk.Label(master, text=f"Username: {self.user_data['Username']}", 
-                                  font=("Brush Script MT", 20), bg='#FFF8E7', fg='black')
-        username_label.pack(pady=10)
+            # Display username in a better position
+            username_label = tk.Label(master, text=f"Username: {self.user_data['username']}",
+                                      font=("Brush Script MT", 20), bg='#FFF8E7', fg='black')
+            username_label.pack(pady=10)
 
-        # Adding more separation
-        separator2 = tk.Frame(master, height=2, bd=1, relief="groove", bg='black')
-        separator2.pack(fill="x", padx=20, pady=10)
+            # Adding more separation
+            separator2 = tk.Frame(master, height=2, bd=1, relief="groove", bg='black')
+            separator2.pack(fill="x", padx=20, pady=10)
 
-        row = 2
-        # Display the rest of the information in the middle of the page
-        self.entry_fields = {}
-        self.labels = {}
-        for key, value in self.user_data.items():
-            if key not in ["First Name", "Last Name", "Username"]:
-                label = tk.Label(master, text=f"{key}: ", font=("Brush Script MT", 16), 
-                                 bg='#FFF8E7', fg='black')
-                label.place(x=640-150, y=150+row*30, anchor="e")
-                self.labels[key] = label
+            row = 2
+            # Display the rest of the information in the middle of the page
+            self.entry_fields = {}
+            self.labels = {}
+            for key, value in self.user_data.items():
+                if key not in ["first_name", "last_name", "username", "payment_id"]:
+                    label = tk.Label(master, text=f"{key.replace('_', ' ').title()}: ", font=("Brush Script MT", 16),
+                                     bg='#FFF8E7', fg='black')
+                    label.place(x=640 - 150, y=150 + row * 30, anchor="e")
+                    self.labels[key] = label
 
-                entry = tk.Entry(master, font=("Arial", 12), bg='white', fg='black')
-                entry.insert(0, value)
-                entry.place(x=640-100, y=150+row*30, anchor="w")
-                entry.config(state="disabled")
-                self.entry_fields[key] = entry
-                
-                edit_button = tk.Button(master, text="Edit", command=lambda k=key, e=entry: self.toggle_edit_field(k, e))
-                
-                edit_button.place(x=640+100, y=150+row*30, anchor="w")
+                    entry = tk.Entry(master, font=("Arial", 12), bg='white', fg='black')
+                    entry.insert(0, value if value else "")  # Placeholder for empty fields
+                    entry.place(x=640 - 100, y=150 + row * 30, anchor="w")
+                    self.entry_fields[key] = entry
+
+                    edit_button = tk.Button(master, text="Edit", command=lambda k=key: self.edit_field(k))
+                    edit_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
+
+                    row += 1
+
+            # Add payment information fields
+            if 'payment_id' in self.user_data and self.user_data['payment_id']:
+                payment_label = tk.Label(master, text="Payment Information", font=("Lucida Calligraphy", 20),
+                                         bg='#FFF8E7', fg='black')
+                payment_label.place(x=640, y=150 + row * 30, anchor="n")
 
                 row += 1
+                payment_fields = ["payment_id", "credit_card_num", "CVC", "expiration_date"]
+                for field in payment_fields:
+                    label = tk.Label(master, text=f"{field.replace('_', ' ').title()}: ",
+                                     font=("Brush Script MT", 16),
+                                     bg='#FFF8E7', fg='black')
+                    label.place(x=640 - 150, y=150 + row * 30, anchor="e")
+                    self.labels[field] = label
 
-    def toggle_edit_field(self, field, entry):
-        if entry["state"] == "disabled":
-            entry.config(state="normal")
-            entry.focus_set()
+                    entry = tk.Entry(master, font=("Arial", 12), bg='white', fg='black')
+                    entry.insert(0, self.user_data.get(field, ""))  # Insert data if available, else empty string
+                    entry.place(x=640 - 100, y=150 + row * 30, anchor="w")
+                    self.entry_fields[field] = entry
+
+                    edit_button = tk.Button(master, text="Edit", command=lambda k=field: self.edit_field(k))
+                    edit_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
+
+                    row += 1
+
         else:
-            entry.config(state="disabled")
+            # Display message if user data is not found
+            error_label = tk.Label(master, text="User data not found", font=("Arial", 20), bg='#FFF8E7', fg='red')
+            error_label.pack(pady=20)
             
+    def edit_field(self, field):
+        entry = self.entry_fields[field]  # Retrieve the entry field associated with the edited value
+        new_value = entry.get()
+        update_user_data(self.user_data['username'], field, new_value)
+        self.user_data[field] = new_value
+        self.labels[field].config(text=f"{field.replace('_', ' ').title()}: {new_value}")
+         
 class MainPage:
-    def __init__(self, master):
+    def __init__(self, master, username):
         self.master = master
+        self.username = username  # Store username as an attribute
         self.master.title("Main Page")
         self.master.geometry("1280x1920")
         self.master.configure(bg='#FFF8E7')  # Cream background
@@ -132,12 +154,12 @@ class MainPage:
     def show_brands(self):
         # Placeholder method to display evening gowns
         print("Displaying Evening Gowns")
-
+    
     def show_profile(self):
-        # Placeholder method to show account profile page
         print("Showing Profile Page")
+        # Use self.username to access the username
         root = tk.Tk()
-        app = ProfilePage(root)
+        app = ProfilePage(root, self.username)
         root.mainloop()
 
     def logout(self):
@@ -232,17 +254,15 @@ class CustomerLoginPage:
 
         self.message = tk.Label(master, text="", fg="red", bg='#FFF8E7')
         self.message.pack()
-
+    
     def login(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
-
         # Placeholder authentication logic
-        # Replace this with your actual authentication logic
         if u_check_login(username, password):
             self.master.destroy()  # Close the login window
             root = tk.Tk()  # Create a new Tkinter root window for the main page
-            app = MainPage(root)  # Open the main page
+            app = MainPage(root, username)  # Pass username to MainPage
             root.mainloop()  # Show the homepage
         else:
             self.message.config(text="Invalid username or password")
@@ -265,7 +285,7 @@ class CustomerLoginPage:
                 self.message.config(text="Sign up successful!")
                 self.master.destroy()  # Close the login window
                 root = tk.Tk()  # Create a new Tkinter root window for the main page
-                app = MainPage(root)  # Open the main page
+                app = MainPage(root, new_username)  # Open the main page
                 root.mainloop()
             else:
                 self.message.config(text="Failed to sign up. Please try again.")

@@ -212,3 +212,43 @@ def delete_user(username):
             print(f"User {username} deleted successfully")
     except sqlite3.Error as e:
         print("Error deleting user:", e)
+
+
+def fetch_user_data(username):
+    # Fetch user data including payment information from the database based on the username
+    c.execute("SELECT * FROM users LEFT JOIN payment_info ON users.username = payment_info.payment_id WHERE users.username=?", (username,))
+    user_data = c.fetchone()
+    if user_data:
+        return {
+            'username': user_data[0],
+            'first_name': user_data[2],
+            'last_name': user_data[3],
+            'address_1': user_data[4],
+            'email': user_data[5],
+            'phone_number': user_data[6],
+            'credit_card_num': user_data[9],
+            'CVC': user_data[10],
+            'expiration_date': user_data[11]
+        }
+    else:
+        return None
+
+def update_user_data(username, field, new_value):
+    if field in ["credit_card_num", "CVC", "expiration_date"]:
+        # Check if the user already has payment information
+        c.execute("SELECT * FROM payment_info WHERE payment_id=?", (username,))
+        existing_payment_info = c.fetchone()
+
+        if existing_payment_info:
+            # Update existing payment information
+            c.execute(f"UPDATE payment_info SET \"{field}\"=? WHERE payment_id=?", (new_value, username))
+        else:
+            # Insert new payment information
+            c.execute("INSERT INTO payment_info VALUES (?, ?, ?, ?)", (username, None, None, None))
+            # Update the newly inserted payment information
+            c.execute(f"UPDATE payment_info SET \"{field}\"=? WHERE payment_id=?", (new_value, username))
+    else:
+        # Update other user information
+        c.execute(f"UPDATE users SET \"{field}\"=? WHERE username=?", (new_value, username))
+
+    conn.commit()
