@@ -5,7 +5,6 @@ from prettytable import PrettyTable
 conn = sqlite3.connect("wedding_users.db")
 c = conn.cursor()
 
-
 # Enable foreign key support
 c.execute("PRAGMA foreign_keys = ON;")
 
@@ -82,7 +81,6 @@ c.execute(
           FOREIGN KEY (collection_id) REFERENCES wedding_dress(upc) ON DELETE CASCADE
           )"""
 )
-
 
 # Create reviews table
 c.execute(
@@ -173,10 +171,11 @@ def display_table_data():
         print(f"\nTable: {table[0]}")
         print(table_data)
 
+
 # Call the function to display table data
 display_table_data()
 
-# Function to display view data in a table format
+
 def display_view_data(view_name):
     try:
         # Fetch all rows from the view
@@ -206,11 +205,10 @@ def display_view_data(view_name):
         print(f"Error displaying data from the view {view_name}: {e}")
 
 
-# Call the function to display view data
+# Example usage:
 display_view_data("dress_info_users")
 display_view_data("dress_info_employee")
 display_view_data("users_info")
-
 
 
 # Log in query (user)
@@ -236,7 +234,7 @@ def e_check_login(employee_id, username, password):
 
 
 # Sign up query
-def create_user(username, password, first_name, last_name,address_1, email, phone_number, order_history):
+def create_user(username, password, first_name, last_name, address_1, email, phone_number, order_history):
     """Returns True if the user was successfully created, False otherwise"""
     try:
         with conn:
@@ -259,6 +257,7 @@ def create_user(username, password, first_name, last_name,address_1, email, phon
         print("Failed to add user into sqlite table:", error)
         return False
 
+
 # Delete the user
 def delete_user(username):
     try:
@@ -268,3 +267,44 @@ def delete_user(username):
             print(f"User {username} deleted successfully")
     except sqlite3.Error as e:
         print("Error deleting user:", e)
+
+
+def fetch_user_data(username):
+    # Fetch user data including payment information from the database based on the username
+    c.execute("SELECT * FROM users LEFT JOIN payment_info ON users.username = payment_info.payment_id WHERE users.username=?", (username,))
+    user_data = c.fetchone()
+    if user_data:
+        return {
+            'username': user_data[0],
+            'first_name': user_data[2],
+            'last_name': user_data[3],
+            'address_1': user_data[4],
+            'email': user_data[5],
+            'phone_number': user_data[6],
+            'credit_card_num': user_data[9],
+            'CVC': user_data[10],
+            'expiration_date': user_data[11]
+        }
+    else:
+        return None
+
+def update_user_data(username, field, new_value):
+    if field in ["credit_card_num", "CVC", "expiration_date"]:
+        # Check if the user already has payment information
+        c.execute("SELECT * FROM payment_info WHERE payment_id=?", (username,))
+        existing_payment_info = c.fetchone()
+
+        if existing_payment_info:
+            # Update existing payment information
+            c.execute(f"UPDATE payment_info SET \"{field}\"=? WHERE payment_id=?", (new_value, username))
+        else:
+            # Insert new payment information
+            c.execute("INSERT INTO payment_info VALUES (?, ?, ?, ?)", (username, None, None, None))
+            # Update the newly inserted payment information
+            c.execute(f"UPDATE payment_info SET \"{field}\"=? WHERE payment_id=?", (new_value, username))
+    else:
+        # Update other user information
+        c.execute(f"UPDATE users SET \"{field}\"=? WHERE username=?", (new_value, username))
+
+    conn.commit()
+
