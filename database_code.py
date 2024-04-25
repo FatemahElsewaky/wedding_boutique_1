@@ -90,8 +90,7 @@ c.execute(
           comment TEXT,
           stars INTEGER,
           PRIMARY KEY (user_id, wedding_dress_upc),
-          FOREIGN KEY (user_id) REFERENCES users(username) ON DELETE CASCADE,
-          FOREIGN KEY (wedding_dress_upc) REFERENCES wedding_dress(upc) ON DELETE CASCADE
+          FOREIGN KEY (user_id) REFERENCES users(username) ON DELETE CASCADE
           )"""
 )
 
@@ -107,6 +106,7 @@ c.execute(
           FOREIGN KEY (wedding_dress_upc) REFERENCES wedding_dress(upc) ON DELETE CASCADE
           )"""
 )
+
 
 # # Create dress information view as a user
 # c.execute(
@@ -271,7 +271,9 @@ def delete_user(username):
 
 def fetch_user_data(username):
     # Fetch user data including payment information from the database based on the username
-    c.execute("SELECT * FROM users LEFT JOIN payment_info ON users.username = payment_info.payment_id WHERE users.username=?", (username,))
+    c.execute(
+        "SELECT * FROM users LEFT JOIN payment_info ON users.username = payment_info.payment_id WHERE users.username=?",
+        (username,))
     user_data = c.fetchone()
     if user_data:
         return {
@@ -287,6 +289,7 @@ def fetch_user_data(username):
         }
     else:
         return None
+
 
 def update_user_data(username, field, new_value):
     if field in ["credit_card_num", "CVC", "expiration_date"]:
@@ -307,4 +310,46 @@ def update_user_data(username, field, new_value):
         c.execute(f"UPDATE users SET \"{field}\"=? WHERE username=?", (new_value, username))
 
     conn.commit()
+
+
+def add_review(user_id, wedding_dress_upc, comment, stars):
+    try:
+        # SQL query to insert a new review into the reviews table
+        c.execute("INSERT INTO reviews (user_id, wedding_dress_upc, comment, stars) VALUES (?, ?, ?, ?)",
+                  (user_id, wedding_dress_upc, comment, stars))
+        # Commit the changes to the database
+        conn.commit()
+
+        print("Review added successfully!")
+
+    except sqlite3.Error as error:
+        print("Failed to add review:", error)
+
+def fetch_reviews():
+    try:
+        with conn:
+
+            # Query to fetch reviews
+            c.execute("SELECT comment, stars, user_id FROM reviews")
+            reviews_data = c.fetchall()
+
+            # Create a list to store reviews
+            reviews = []
+
+            # Iterate over the fetched data and convert it to dictionaries
+            for review in reviews_data:
+                # Create a dictionary for each review
+                review_dict = {
+                    'comment': review[0],  # Index 0 corresponds to the comment
+                    'stars': review[1],    # Index 1 corresponds to the stars
+                    'user': review[2]      # Index 2 corresponds to the user
+                }
+                # Append the dictionary to the list of reviews
+                reviews.append(review_dict)
+
+            return reviews
+
+    except sqlite3.Error as e:
+        print("Error fetching reviews:", e)
+        return []
 
