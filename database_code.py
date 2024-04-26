@@ -53,14 +53,12 @@ c.execute(
 c.execute(
     """CREATE TABLE IF NOT EXISTS wedding_dress (
           upc INTEGER(12) PRIMARY KEY,
-          name VARCHAR(20) NOT NULL,
-          price REAL NOT NULL,
-          color VARCHAR(20) NOT NULL,
+          name VARCHAR(20),
+          price REAL,
+          color VARCHAR(20),
           description TEXT
           )"""
 )
-
-c.execute("CREATE INDEX IF NOT EXISTS idx_upc ON wedding_dress(upc)")
 
 # Create style table
 c.execute(
@@ -385,149 +383,12 @@ def fetch_reviews():
         print("Error fetching reviews:", e)
         return []
 
-def fetch_dress_info_employee():
+def insert_order(user_id, wedding_dress_upc, tracking_id, arrival_status):
     try:
         with conn:
-            # Query to fetch reviews
-            c.execute("SELECT * FROM dress_info_employee")
-            dresses_data = c.fetchall()
-
-            # Create a list to store reviews
-            dresses = []
-
-            # Iterate over the fetched data and convert it to dictionaries
-            for dress in dresses_data:
-                # Create a dictionary for each review
-                dress_dict = {
-                    'upc': dress[0],  # Index 0 corresponds to the comment
-                    'name': dress[1],  # Index 1 corresponds to the stars
-                    'price': dress[2],  # Index 2 corresponds to the user
-                    'color': dress[3],   # Index 3 corresponds to the color
-                    'description': dress[4],  # Index 4 corresponds to the description
-                    'elegant': dress[5],  # Index 5 corresponds to the elegant
-                    'vintage': dress[6],  # Index 6 corresponds to the vintage
-                    'princess': dress[7],  # Index 7 corresponds to the princess
-                    'boho': dress[8],  # Index 8 corresponds to the boho
-                    'c1': dress[9],  # Index 9 corresponds to the c1
-                    'c2': dress[10]  # Index 10 corresponds to the c2
-                }
-                # Append the dictionary to the list of reviews
-                dresses.append(dress_dict)
-
-            return dresses
-
-    except sqlite3.Error as e:
-        print("Error fetching reviews:", e)
-        return []
-
-def updatedress(upc, name, price, color, description, elegant, vintage, princess, boho, c1, c2):
-    try:
-        with conn:
-            # Begin a transaction
-            conn.execute("BEGIN TRANSACTION")
-
-            # Update wedding_dress table
-            c.execute("""
-                            UPDATE wedding_dress 
-                            SET name=?, price=?, color=?, description=?
-                            WHERE upc=?
-                        """, (name, price, color, description, upc))
-            wedding_dress_rows_affected = c.rowcount
-            # Update style table
-            c.execute("""
-                UPDATE style 
-                SET elegant=?, vintage=?, princess=?, boho=?
-                WHERE style_id=?
-            """, (elegant, vintage, princess, boho, upc))
-            style_rows_affected = c.rowcount
-            # Update collection table
-            c.execute("""
-                UPDATE collection 
-                SET c1=?, c2=?
-                WHERE collection_id=?
-            """, (c1, c2, upc))
-            collection_rows_affected = c.rowcount
-            # Check if any of the tables were affected
-            if wedding_dress_rows_affected == 0 or style_rows_affected == 0 or collection_rows_affected == 0:
-                print("No rows were affected. UPC might not exist or fields were empty.")
-                return False
-            else:
-                conn.commit()
-                return True
-    except sqlite3.Error as e:
-        print("Error updating dress:", e)
-        # Rollback the transaction if an error occurs
-        conn.rollback()
-        return False
-
-def add_wedding_dress(upc, name, price, color, description, elegant, vintage, princess, boho, c1, c2):
-    try:
-        with conn:
-            # Begin a transaction
-            conn.execute("BEGIN TRANSACTION")
-
-            # Update wedding_dress table
-            c.execute("""INSERT INTO wedding_dress (name, price, color, description, upc) VALUES (?, ?, ?, ?, ?)""",
-                      (name, price, color, description, upc))
-
-            # Update style table
-            c.execute("""
-                INSERT INTO style (elegant, vintage, princess, boho, style_id) VALUES (?, ?, ?, ?, ?)""",
-    (elegant, vintage, princess, boho, upc))
-
-            # Update collection table
-            c.execute("""
-                INSERT INTO collection (c1, c2, collection_id) VALUES (?, ?, ?)""",(c1, c2, upc))
-
-            # Commit the transaction
-            conn.commit()
-            return True
-    except sqlite3.Error as e:
-        print("Error adding dress:", e)
-        # Rollback the transaction if an error occurs
-        conn.rollback()
-        return False
-
-def delete_wedding_dress(upc):
-    try:
-        with conn:
-            # Begin a transaction
-            conn.execute("BEGIN TRANSACTION")
-
-            # delete wedding_dress from table
-            result = c.execute("DELETE FROM wedding_dress WHERE upc=?", (upc,))
-            # Check if any rows were affected
-            if result.rowcount == 0:
-                print("No dress found with UPC:", upc)
-                return False
-            else:
-                # Commit the transaction
-                conn.commit()
-                return True
-    except sqlite3.Error as e:
-        print("Error deleting dress:", e)
-        # Rollback the transaction if an error occurs
-        conn.rollback()
-        return False
-
-
-def fetch_order_data(username):
-    # Fetch order data from the database based on the username
-    c.execute(
-        "SELECT * FROM orders WHERE user_id=?",
-        (username,))
-    order_data = c.fetchall()
-
-    orders = []
-    for order_row in order_data:
-        order = {
-            'order_num': order_row[0],
-            'user_id': order_row[1],
-            'wedding_dress_upc': order_row[2],
-            'tracking_id': order_row[3],
-            'arrival_status': order_row[4]
-        }
-        orders.append(order)
-
-    return orders
-
+            # Insert the order into the orders table
+            c.execute("INSERT INTO orders (user_id, wedding_dress_upc, tracking_id, arrival_status) VALUES (?, ?, ?, ?)",
+                      (user_id, wedding_dress_upc, tracking_id, arrival_status))
+            print("Order placed successfully!")
+    except sqlite3.Error as error:
+        print("Failed to insert order:", error)
