@@ -383,3 +383,12 @@ def fetch_reviews():
         print("Error fetching reviews:", e)
         return []
 
+def insert_order(user_id, wedding_dress_upc, tracking_id, arrival_status):
+    try:
+        with conn:
+            # Insert the order into the orders table
+            c.execute("INSERT INTO orders (user_id, wedding_dress_upc, tracking_id, arrival_status) VALUES (?, ?, ?, ?)",
+                      (user_id, wedding_dress_upc, tracking_id, arrival_status))
+            print("Order placed successfully!")
+    except sqlite3.Error as error:
+        print("Failed to insert order:", error)

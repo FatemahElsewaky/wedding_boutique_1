@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 from tkmacosx import Button
 from database_code import *
 import string
+import uuid
 
 
 def create_footer(master):
@@ -20,7 +21,8 @@ def create_footer(master):
 
 
 class DressPage:
-    def __init__(self, master, dress_number, main_page):
+    def __init__(self, master, dress_number, main_page, username):
+        self.username = username  # Store username as an attribute
         self.master = master
         self.dress_number = dress_number
         self.main_page = main_page
@@ -118,8 +120,8 @@ class DressPage:
         checkout_window = tk.Toplevel(self.master)
         checkout_window.geometry("800x600")
         checkout_window.title("Checkout")
-        checkout_page = CheckoutPage(checkout_window, "user1")
-        # Example usage
+        # checkout_page = CheckoutPage(checkout_window, "user1")
+        checkout_page = CheckoutPage(checkout_window, self.username)
 
 
     def go_to_previous_page(self):
@@ -199,16 +201,29 @@ class CheckoutPage:
             error_label = tk.Label(self.master, text="User data not found", font=("Arial", 20), bg='#FDE1DE', fg='red')
             error_label.pack(pady=20)
 
+        # Create a label to display order status
+        self.order_status_label = tk.Label(self.master, text="", font=("Lucida Calligraphy", 16), bg='#FDE1DE', fg='black')
+        self.order_status_label.pack(pady=10)
+        self.order_status_label.place(x=375, y=150 + (row + 2) * 30, anchor="n")
+
         # Place Order Button
         place_order_button = tk.Button(self.master, text="Place Order", command=self.place_order,
                                        font=("Lucida Calligraphy", 20), bg='#FDE1DE', fg='black')
-        place_order_button.place(x=375, y=150 + (row + 2) * 30, anchor="n")
+        place_order_button.place(x=375, y=150 + (row + 3) * 30, anchor="n")
 
     def place_order(self):
         # Placeholder function to place the order
         print("Placing order...")
         # Here you would add the logic to insert the order into the database
-
+        user_id = self.username  # Assuming the username serves as the user_id
+        wedding_dress_upc = "260235696944"
+        tracking_id = str(uuid.uuid4())[:18]  # Get the first 18 characters of the UUID
+        arrival_status = "Pending"  # Set initial arrival status
+        # Call the insert_order function to add the order to the database
+        insert_order(user_id, wedding_dress_upc, tracking_id, arrival_status)
+        
+        self.order_status_label.config(text="Order placed successfully!")        
+        
     def update_payment_info(self, field):
         entry = self.entry_fields[field]
         new_value = entry.get()
@@ -481,7 +496,7 @@ class MainPage:
     def show_dress_page(self, dress_number):
         # Create a new dress page and pass dress information if needed
         root = tk.Toplevel(self.master)
-        dress_page = DressPage(root, dress_number, self)
+        dress_page = DressPage(root, dress_number, self, self.username)
         root.mainloop()
 
     def show_collections(self):
