@@ -1,10 +1,10 @@
 import sqlite3
 import csv
 from prettytable import PrettyTable
+import string
 
 conn = sqlite3.connect("wedding_users.db")
 c = conn.cursor()
-
 
 # Enable foreign key support
 c.execute("PRAGMA foreign_keys = ON;")
@@ -83,7 +83,6 @@ c.execute(
           )"""
 )
 
-
 # Create reviews table
 c.execute(
     """CREATE TABLE IF NOT EXISTS reviews (
@@ -92,8 +91,7 @@ c.execute(
           comment TEXT,
           stars INTEGER,
           PRIMARY KEY (user_id, wedding_dress_upc),
-          FOREIGN KEY (user_id) REFERENCES users(username) ON DELETE CASCADE,
-          FOREIGN KEY (wedding_dress_upc) REFERENCES wedding_dress(upc) ON DELETE CASCADE
+          FOREIGN KEY (user_id) REFERENCES users(username) ON DELETE CASCADE
           )"""
 )
 
@@ -109,6 +107,7 @@ c.execute(
           FOREIGN KEY (wedding_dress_upc) REFERENCES wedding_dress(upc) ON DELETE CASCADE
           )"""
 )
+
 
 # # Create dress information view as a user
 # c.execute(
@@ -173,10 +172,11 @@ def display_table_data():
         print(f"\nTable: {table[0]}")
         print(table_data)
 
+
 # Call the function to display table data
 display_table_data()
 
-# Function to display view data in a table format
+
 def display_view_data(view_name):
     try:
         # Fetch all rows from the view
@@ -206,11 +206,10 @@ def display_view_data(view_name):
         print(f"Error displaying data from the view {view_name}: {e}")
 
 
-# Call the function to display view data
+# Example usage:
 display_view_data("dress_info_users")
 display_view_data("dress_info_employee")
 display_view_data("users_info")
-
 
 
 # Log in query (user)
@@ -236,7 +235,7 @@ def e_check_login(employee_id, username, password):
 
 
 # Sign up query
-def create_user(username, password, first_name, last_name,address_1, email, phone_number, order_history):
+def create_user(username, password, first_name, last_name, address_1, email, phone_number, order_history):
     """Returns True if the user was successfully created, False otherwise"""
     try:
         with conn:
@@ -259,6 +258,7 @@ def create_user(username, password, first_name, last_name,address_1, email, phon
         print("Failed to add user into sqlite table:", error)
         return False
 
+
 # Delete the user
 def delete_user(username):
     try:
@@ -268,3 +268,128 @@ def delete_user(username):
             print(f"User {username} deleted successfully")
     except sqlite3.Error as e:
         print("Error deleting user:", e)
+
+
+def fetch_user_data(username):
+    # Fetch user data including payment information from the database based on the username
+    c.execute(
+        "SELECT * FROM users LEFT JOIN payment_info ON users.username = payment_info.payment_id WHERE users.username=?",
+        (username,))
+    user_data = c.fetchone()
+    if user_data:
+        return {
+            'username': user_data[0],
+            'first_name': user_data[2],
+            'last_name': user_data[3],
+            'address_1': user_data[4],
+            'email': user_data[5],
+            'phone_number': user_data[6],
+            'credit_card_num': user_data[9],
+            'CVC': user_data[10],
+            'expiration_date': user_data[11]
+        }
+    else:
+        return None
+
+
+def update_user_data(username, field, new_value):
+    if field in ["credit_card_num", "CVC", "expiration_date"]:
+        # Check if the user already has payment information
+        c.execute("SELECT * FROM payment_info WHERE payment_id=?", (username,))
+        existing_payment_info = c.fetchone()
+
+        if existing_payment_info:
+            # Update existing payment information
+            c.execute(f"UPDATE payment_info SET \"{field}\"=? WHERE payment_id=?", (new_value, username))
+        else:
+            # Insert new payment information
+            c.execute("INSERT INTO payment_info VALUES (?, ?, ?, ?)", (username, None, None, None))
+            # Update the newly inserted payment information
+            c.execute(f"UPDATE payment_info SET \"{field}\"=? WHERE payment_id=?", (new_value, username))
+    else:
+        # Update other user information
+        c.execute(f"UPDATE users SET \"{field}\"=? WHERE username=?", (new_value, username))
+
+    conn.commit()
+
+
+def fetch_employee_data(employee_id):
+    try:
+        # Fetch employee data from the database based on the employee ID
+        c.execute("SELECT * FROM employees WHERE employee_id=?", (employee_id,))
+        employee_data = c.fetchone()
+        if employee_data:
+            return {
+                'employee_id': employee_data[0],
+                'username': employee_data[1],
+                'password': employee_data[2],
+                'first_name': employee_data[3],
+                'last_name': employee_data[4],
+                'address': employee_data[5],
+                'email': employee_data[6],
+                'phone_number': employee_data[7]
+            }
+        else:
+            return None
+    except sqlite3.Error as e:
+        print("Error fetching employee data:", e)
+        return None
+
+def update_employee_data(employee_id, field, new_value):
+    try:
+        # Update employee data in the database
+        c.execute(f"UPDATE employees SET \"{field}\"=? WHERE employee_id=?", (new_value, employee_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        print("Error updating employee data:", e)
+
+def add_review(user_id, wedding_dress_upc, comment, stars):
+    try:
+        # SQL query to insert a new review into the reviews table
+        c.execute("INSERT INTO reviews (user_id, wedding_dress_upc, comment, stars) VALUES (?, ?, ?, ?)",
+                  (user_id, wedding_dress_upc, comment, stars))
+        # Commit the changes to the database
+        conn.commit()
+
+        print("Review added successfully!")
+
+    except sqlite3.Error as error:
+        print("Failed to add review:", error)
+
+def fetch_reviews():
+    try:
+        with conn:
+
+            # Query to fetch reviews
+            c.execute("SELECT comment, stars, user_id FROM reviews")
+            reviews_data = c.fetchall()
+
+            # Create a list to store reviews
+            reviews = []
+
+            # Iterate over the fetched data and convert it to dictionaries
+            for review in reviews_data:
+                # Create a dictionary for each review
+                review_dict = {
+                    'comment': review[0],  # Index 0 corresponds to the comment
+                    'stars': review[1],    # Index 1 corresponds to the stars
+                    'user': review[2]      # Index 2 corresponds to the user
+                }
+                # Append the dictionary to the list of reviews
+                reviews.append(review_dict)
+
+            return reviews
+
+    except sqlite3.Error as e:
+        print("Error fetching reviews:", e)
+        return []
+
+def insert_order(user_id, wedding_dress_upc, tracking_id, arrival_status):
+    try:
+        with conn:
+            # Insert the order into the orders table
+            c.execute("INSERT INTO orders (user_id, wedding_dress_upc, tracking_id, arrival_status) VALUES (?, ?, ?, ?)",
+                      (user_id, wedding_dress_upc, tracking_id, arrival_status))
+            print("Order placed successfully!")
+    except sqlite3.Error as error:
+        print("Failed to insert order:", error)
