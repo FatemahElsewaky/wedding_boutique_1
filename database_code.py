@@ -312,6 +312,36 @@ def update_user_data(username, field, new_value):
     conn.commit()
 
 
+def fetch_employee_data(employee_id):
+    try:
+        # Fetch employee data from the database based on the employee ID
+        c.execute("SELECT * FROM employees WHERE employee_id=?", (employee_id,))
+        employee_data = c.fetchone()
+        if employee_data:
+            return {
+                'employee_id': employee_data[0],
+                'username': employee_data[1],
+                'password': employee_data[2],
+                'first_name': employee_data[3],
+                'last_name': employee_data[4],
+                'address': employee_data[5],
+                'email': employee_data[6],
+                'phone_number': employee_data[7]
+            }
+        else:
+            return None
+    except sqlite3.Error as e:
+        print("Error fetching employee data:", e)
+        return None
+
+def update_employee_data(employee_id, field, new_value):
+    try:
+        # Update employee data in the database
+        c.execute(f"UPDATE employees SET \"{field}\"=? WHERE employee_id=?", (new_value, employee_id))
+        conn.commit()
+    except sqlite3.Error as e:
+        print("Error updating employee data:", e)
+
 def add_review(user_id, wedding_dress_upc, comment, stars):
     try:
         # SQL query to insert a new review into the reviews table
