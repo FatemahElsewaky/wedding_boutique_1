@@ -1,11 +1,42 @@
 import tkinter as tk
-from tkinter import messagebox, ttk, Button
+from tkinter import messagebox, ttk, Button, PhotoImage
+
 from PIL import ImageTk, Image
 from tkmacosx import Button
 from database_code import *
 import string
 import uuid
+from PIL import Image, ImageTk
 
+import zipfile
+import os
+
+def extract_images(zip_path, extract_to):
+    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        zip_ref.extractall(extract_to)
+
+# Assuming the zip file is in the same directory as your script
+zip_path = 'weddingdress.zip'
+extract_to = 'wedding_dresses'
+if not os.path.exists(extract_to):
+    os.makedirs(extract_to)
+    extract_images(zip_path, extract_to)
+
+
+
+def fetch_dress_details(dress_name):
+    # Replace 'your_database.db' with the actual path to your SQLite database file
+    db_path = 'wedding_users.db'
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+
+    # SQL query to fetch dress details
+    query = "SELECT name, price, color, description FROM dress_info_users WHERE name = ?"
+    cursor.execute(query, (dress_name,))
+    dress_details = cursor.fetchone()
+        
+    connection.close()
+    return dress_details if dress_details else ('', '', '', '')
 
 def create_footer(master):
     # Footer frame
@@ -89,6 +120,7 @@ class DressPage:
         # Display dress information
         self.description_label = tk.Label(self.info_frame, text="Dress Color:", font=("Lucida Calligraphy", 20),
                                           bg="#FFF8E7")
+
         self.description_label.pack(pady=(20, 10))
 
         # Create measurement entry boxes
@@ -96,6 +128,7 @@ class DressPage:
         self.measurement_entries = []
         for measurement in ["Bust", "Waist", "Hips", "Height"]:
             label = tk.Label(self.info_frame, text=f"{measurement}:", font=("Lucida Calligraphy", 20), bg="#FFF8E7")
+
             label.pack(pady=(10, 0))
             self.measurement_labels.append(label)
 
@@ -122,7 +155,6 @@ class DressPage:
         checkout_window.title("Checkout")
         # checkout_page = CheckoutPage(checkout_window, "user1")
         checkout_page = CheckoutPage(checkout_window, self.username)
-
 
     def go_to_previous_page(self):
         # Placeholder function to navigate to the previous page
@@ -234,13 +266,13 @@ class CheckoutPage:
         else:
             messagebox.showwarning("Warning", "Only payment-related fields can be updated here!")
 
-
 class ProfilePage:
     def __init__(self, master, username):
         self.master = master
         self.master.title("User Profile")
         self.master.geometry("1280x800")  # Adjusted height for better visibility
         self.master.configure(bg='#FDE1DE')  # Cream background
+
 
         # Fetch user data from the database
         self.user_data = fetch_user_data(username)
@@ -249,6 +281,7 @@ class ProfilePage:
             # Display name and last name in a bigger font at the top center
             name_label = tk.Label(master, text=f"{self.user_data['first_name']} {self.user_data['last_name']}",
                                   font=("Lucida Calligraphy", 36), bg='#FDE1DE', fg='black')
+
             name_label.pack(pady=20)
 
             # Adding a line for separation
@@ -258,6 +291,7 @@ class ProfilePage:
             # Display username in a better position
             username_label = tk.Label(master, text=f"Username: {self.user_data['username']}",
                                       font=("Brush Script MT", 20), bg='#FDE1DE', fg='black')
+
             username_label.pack(pady=10)
 
             # Adding more separation
@@ -272,6 +306,7 @@ class ProfilePage:
                 if key not in ["first_name", "last_name", "username", "payment_id"]:
                     label = tk.Label(master, text=f"{key.replace('_', ' ').title()}: ", font=("Brush Script MT", 16),
                                      bg='#FDE1DE', fg='black')
+
                     label.place(x=640 - 150, y=150 + row * 30, anchor="e")
                     self.labels[key] = label
 
@@ -282,6 +317,7 @@ class ProfilePage:
 
                     edit_button = tk.Button(master, text="Update", command=lambda k=key: self.edit_field(k),
                                              bg='#FDE1DE', fg='black', font=("Lucida Calligraphy", 14))
+
                     edit_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
 
                     row += 1
@@ -290,6 +326,7 @@ class ProfilePage:
             if 'payment_id' in self.user_data and self.user_data['payment_id']:
                 payment_label = tk.Label(master, text="Payment Information", font=("Lucida Calligraphy", 20),
                                          bg='#FDE1DE', fg='black')
+
                 payment_label.place(x=640, y=150 + row * 30, anchor="n")
 
                 row += 1
@@ -298,6 +335,7 @@ class ProfilePage:
                     label = tk.Label(master, text=f"{field.replace('_', ' ').title()}: ",
                                      font=("Brush Script MT", 16),
                                      bg='#FDE1DE', fg='black')
+
                     label.place(x=640 - 150, y=150 + row * 30, anchor="e")
                     self.labels[field] = label
 
@@ -308,6 +346,7 @@ class ProfilePage:
 
                     edit_button = tk.Button(master, text="Update", command=lambda k=field: self.edit_field(k),
                                             bg='#FDE1DE', fg='black', font=("Lucida Calligraphy", 14))
+
                     edit_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
 
                     row += 1
@@ -317,6 +356,7 @@ class ProfilePage:
             error_label = tk.Label(master, text="User data not found", font=("Arial", 20), bg='#FDE1DE', fg='red')
             error_label.pack(pady=20)
         
+
     def edit_field(self, field):
         entry = self.entry_fields[field]  # Retrieve the entry field associated with the edited value
         new_value = entry.get()
@@ -332,7 +372,7 @@ class MainPage:
         self.master.geometry("1280x1920")
         self.master.configure(bg='#FEF0EF')  # Cream background
 
-        self.label = tk.Label(master, text="H.E.M.", font=("Lucida Calligraphy", 48), bg='#FEF0EF', fg='black')
+        self.label = tk.Label(master, text="H.E.M.", font=("Lucida Calligraphy", 40), bg='#FEF0EF', fg='black')
         self.label.pack(pady=20)
 
         # Set background color for the menu bar
@@ -430,19 +470,28 @@ class MainPage:
             text_widget.config(state=tk.DISABLED)  # Disable editing
             text_widget.pack(side=tk.RIGHT, padx=20)
 
+
     def show_wedding_dresses(self):
-        """Display 20 boxes for wedding dresses, with scrolling enabled."""
+        """Display boxes for wedding dresses with distinct names, with scrolling enabled."""
         # Clear the current content
         for widget in self.master.winfo_children():
             widget.destroy()
 
         # Title label for the wedding dresses page
-        self.label = tk.Label(self.master, text="Wedding Dresses", font=("Lucida Calligraphy", 48), bg='#FFF8E7',
-                              fg='black')
+
+        self.label = tk.Label(self.master, text="Wedding Dresses", font=("Lucida Calligraphy", 48), bg='#FEF0EF', fg='black')
         self.label.pack(pady=20)
 
-        # Retrieve dress data from the database, including dress ID, image path, and UPC code
-        # dress_data = fetch_dress_data_from_sql()
+        # Retrieve dress data from the dictionary
+        dress_data = {
+            'LEONIE': '260235696944', 'BRYNLEE': '366054713060', 'RHYA': '765243351243',
+            'HARMONIA': '573762794674', 'MEMPHIS': '247304459935', 'DORI': '223401317803',
+            'CARMELLA': '734562441382', 'LUXIA': '549306732031', 'RAMONA': '570882701357',
+            'ARACELY': '213175329642', 'BELLIMISA': '379570679859', 'MAIA': '716922330344',
+            'TATITANA': '997242272963', 'AURORA': '313455989872', 'NEELA': '144691041532',
+            'DOLORES': '532619135710', 'JOLENE': '204820886951', 'VARELLA': '669304145861',
+            'SERAPHINE': '381006261038', 'IRIS': '828169952218'
+        }
 
         # Create a frame to hold the canvas and scrollbar
         container = tk.Frame(self.master)
@@ -452,6 +501,7 @@ class MainPage:
         canvas = tk.Canvas(container, bg='#FFF8E7')
         scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview)
         scrollable_frame = tk.Frame(canvas, bg='#FFF8E7')
+
 
         # Configure the canvas
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
@@ -469,17 +519,18 @@ class MainPage:
 
         # Define the size of the box and the space between them
         box_size = 230  # Size of the box
-        spacing = 48  # Space between the boxes (about an inch)
 
-        # Create 20 boxes with labels underneath
-        for i in range(1, 21):
-            frame = tk.Frame(scrollable_frame, height=box_size, width=box_size, bg='white', bd=2, relief="groove")
-            frame.grid(row=(i - 1) // 4, column=(i - 1) % 4, padx=spacing, pady=spacing)
-            label = tk.Label(scrollable_frame, text=f"Dress {i}", font=("Arial", 18), bg='#FFF8E7')
-            label.grid(row=(i - 1) // 4, column=(i - 1) % 4, sticky="n")
+        spacing = 48  # Space between the boxes
 
-            # Bind click event to dress box
-            frame.bind("<Button-1>", lambda event, dress_number=i: self.on_dress_box_click(dress_number))
+        # Create boxes with labels for each dress
+        for i, (dress_name, upc) in enumerate(dress_data.items()):
+            frame = tk.Frame(scrollable_frame, height=box_size, width=box_size, bg='pink', bd=2, relief="groove")
+            frame.grid(row=i // 4, column=i % 4, padx=spacing, pady=spacing)
+            label = tk.Label(scrollable_frame, text=dress_name, font=("Arial", 18), bg='#FEF0EF')
+            label.grid(row=i // 4, column=i % 4, sticky="n")
+
+            # Bind click event to dress box, pass the dress_name and upc
+            frame.bind("<Button-1>", lambda event, name=dress_name, code=upc: self.on_dress_box_click(name, code))
 
         # Back Button
         back_button = tk.Button(self.master, text="Back", font=("Lucida Calligraphy", 18), command=self.show_main_page)
@@ -488,48 +539,111 @@ class MainPage:
         # Update the window to reconfigure its size and position
         self.master.geometry("1280x800")
 
-    def on_dress_box_click(self, dress_number):
-        # Placeholder method to handle dress box click
-        # Here you can navigate to DressPage and pass the dress ID and UPC code
-        self.show_dress_page(dress_number)
+    def on_dress_box_click(self, dress_name, upc):
+        dress_details = fetch_dress_details(dress_name)  # This function needs to return price and color as dress_details[1] and dress_details[2]
+        if dress_details:
+            dress_window = tk.Toplevel(self.master)
+            dress_window.title(dress_name)
+            dress_window.geometry("1280x1920")
+            dress_window.configure(bg='#FEF0EF')
+
+            tk.Label(dress_window, text=dress_name, font=("Arial", 24)).pack(pady=(10, 0))
+            
+            # Load and resize the image
+            try:
+                image_path = f"{dress_name}.png"
+                pil_image = Image.open(image_path)
+                # Resize image to new width and height, using Image.LANCZOS for high quality
+                pil_image = pil_image.resize((250, 250), Image.LANCZOS)  # Adjust dimensions as needed
+                photo = ImageTk.PhotoImage(pil_image)
+                image_label = tk.Label(dress_window, image=photo)
+                image_label.image = photo  # Keep a reference!
+                image_label.pack(pady=(10, 0))
+            except Exception as e:
+                print(f"Failed to load image: {e}")
+                tk.Label(dress_window, text="Failed to load image", bg='white', width=50, height=20).pack(pady=(10, 0))
+            
+            tk.Label(dress_window, text=f"Price: {dress_details[1]}", font=("Lucida Calligraphy", 16)).pack(pady=(10, 0))
+            tk.Label(dress_window, text=f"Color: {dress_details[2]}", font=("Lucida Calligraphy", 16)).pack(pady=(10, 0))
+            tk.Label(dress_window, text="Description Placeholder", bg='white', width=50, height=10).pack(pady=(10, 0))
+            
+            checkout_button = tk.Button(dress_window, text="Checkout", command=lambda: self.go_to_checkout(dress_name, upc))
+            checkout_button.pack(pady=20)
+        else:
+            messagebox.showerror("Error", "Dress details not found.")
+
+        
+    def show_dress_details(self, dress_name, upc):
+        # Fetch the details from your data source
+        details = fetch_dress_details(dress_name)
+        if details:
+            dress_window = tk.Toplevel(self.master)
+            dress_window.title(dress_name)
+            dress_window.geometry("600x800")  # Adjust size as needed
+            dress_window.configure(bg='white')
+
+            # Load and display the image
+            image_path = f"{dress_name}.png"  # Assuming the image name matches the dress name
+            try:
+                photo = PhotoImage(file=image_path)
+            except Exception as e:
+                print(f"Failed to load image: {e}")
+                photo = PhotoImage()  # Fallback to an empty image if the load fails
+
+            image_label = tk.Label(dress_window, image=photo)
+            image_label.image = photo  # Keep a reference!
+            image_label.pack(pady=20)
+
+            # Display dress details
+            tk.Label(dress_window, text=f"Name: {dress_name}", font=("Arial", 16)).pack(pady=10)
+            tk.Label(dress_window, text=f"UPC: {upc}", font=("Arial", 16)).pack(pady=10)
+            tk.Label(dress_window, text=f"Price: {details[1]}", font=("Arial", 16)).pack(pady=10)
+            tk.Label(dress_window, text=f"Color: {details[2]}", font=("Arial", 16)).pack(pady=10)
+            tk.Label(dress_window, text=f"Description: {details[3]}", font=("Arial", 16)).pack(pady=10)
+
+            # Optionally add a 'Close' button
+            close_btn = tk.Button(dress_window, text="Close", command=dress_window.destroy)
+            close_btn.pack(pady=20)
 
     def show_dress_page(self, dress_number):
         # Create a new dress page and pass dress information if needed
         root = tk.Toplevel(self.master)
-        dress_page = DressPage(root, dress_number, self, self.username)
+
+        dress_page = DressPage(root, dress_number, self)
         root.mainloop()
 
     def show_collections(self):
-        # Clear the current content if necessary, you might add a method to clear the window
+        # Clear the current content if necessary
         for widget in self.master.winfo_children():
             widget.destroy()
 
-        self.label = tk.Label(self.master, text="Collections", font=("Lucida Calligraphy", 48), bg='#FFF8E7',
-                              fg='black')
+        self.label = tk.Label(self.master, text="Collections", font=("Lucida Calligraphy", 48), bg='#FEF0EF', fg='black')
         self.label.pack(pady=20)
 
         # Frame for collections
-        collections_frame = tk.Frame(self.master, bg='#FFF8E7')
+        collections_frame = tk.Frame(self.master, bg='#FEF0EF')
         collections_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
         # Box 1 for Collection 1
         box1 = tk.LabelFrame(collections_frame, text="Eternal Whisper", font=("Brush Script MT", 24), bg='white',
-                             fg='black', labelanchor='n', width=500, height=300)
+
+                            fg='black', labelanchor='n', width=500, height=300)
         box1.pack(side="left", expand=True, fill="both", padx=10, pady=10)
         box1.pack_propagate(False)
         info1 = tk.Label(box1, text="Classic and timeless bridal gowns.", bg='white', fg='black', font=("Arial", 16))
         info1.pack(expand=True)
-        box1.bind("<Button-1>", lambda e: messagebox.showinfo("Collection", "Eternal Whisper: More details here..."))
+
+        box1.bind("<Button-1>", lambda e: self.show_collection_dresses(0))  # Show the first 10 dresses
 
         # Box 2 for Collection 2
         box2 = tk.LabelFrame(collections_frame, text="Celestial Bloom", font=("Brush Script MT", 24), bg='white',
-                             fg='black', labelanchor='n', width=500, height=300)
+                            fg='black', labelanchor='n', width=500, height=300)
         box2.pack(side="right", expand=True, fill="both", padx=10, pady=10)
         box2.pack_propagate(False)
         info2 = tk.Label(box2, text="Modern designs with a touch of the stars.", bg='white', fg='black',
-                         font=("Arial", 16))
+                        font=("Arial", 16))
         info2.pack(expand=True)
-        box2.bind("<Button-1>", lambda e: messagebox.showinfo("Collection", "Celestial Bloom: More details here..."))
+        box2.bind("<Button-1>", lambda e: self.show_collection_dresses(10))  # Show the last 10 dresses
 
         # Back Button
         back_button = tk.Button(self.master, text="Back", font=("Lucida Calligraphy", 18), command=self.show_main_page)
@@ -538,6 +652,71 @@ class MainPage:
         # Update the window to reconfigure its size and position
         self.master.geometry("1280x800")  # Resize window back to the main app size
 
+    def show_collection_dresses(self, start_index):
+        collection_window = tk.Toplevel(self.master)
+        collection_window.title("Collection Dresses")
+        collection_window.geometry("1280x1920")
+        collection_window.configure(bg='white')
+
+        dress_data = {
+            'LEONIE': '260235696944', 'BRYNLEE': '366054713060', 'RHYA': '765243351243',
+            'HARMONIA': '573762794674', 'MEMPHIS': '247304459935', 'DORI': '223401317803',
+            'CARMELLA': '734562441382', 'LUXIA': '549306732031', 'RAMONA': '570882701357',
+            'ARACELY': '213175329642', 'BELLIMISA': '379570679859', 'MAIA': '716922330344',
+            'TATITANA': '997242272963', 'AURORA': '313455989872', 'NEELA': '144691041532',
+            'DOLORES': '532619135710', 'JOLENE': '204820886951', 'VARELLA': '669304145861',
+            'SERAPHINE': '381006261038', 'IRIS': '828169952218'
+        }
+
+        # Determine which dresses to display based on start_index
+        if start_index == 0:
+            displayed_dresses = list(dress_data.items())[:10]
+        else:
+            displayed_dresses = list(dress_data.items())[10:20]
+
+        # The container frame for the canvas and scrollbar
+        container = tk.Frame(collection_window)
+        container.pack(fill="both", expand=True)
+
+        # The canvas where we'll draw the dress boxes
+        canvas = tk.Canvas(container, bg='#FEF0EF')
+        scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Binding the scrollbar
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+
+        # Frame to pack inside the canvas (this will contain our dress labels)
+        scrollable_frame = tk.Frame(canvas, bg='#FEF0EF')
+
+        # Adding the frame to the canvas
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+
+        # Binding the frame to the canvas's scrollregion
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        # Define size and padding
+        box_size = 400
+        padding = 50
+
+        # Create labels for each dress within the collection
+        for i, (dress_name, upc) in enumerate(displayed_dresses):
+            # You could also add images and other details similarly
+            frame = tk.Frame(scrollable_frame, height=box_size, width=box_size, bg='pink', bd=2, relief="groove")
+            frame.grid(row=i // 5, column=i % 5, padx=padding, pady=padding)
+            label = tk.Label(frame, text=dress_name, font=("Arial", 18), bg='pink')
+            label.pack(padx=padding, pady=padding)
+
+             # Bind click event to dress box, pass the dress_name and upc
+            frame.bind("<Button-1>", lambda event, name=dress_name, code=upc: self.on_dress_box_click(name, code))
+            
+        back_button = tk.Button(collection_window, text="Back", command=collection_window.destroy)
+        back_button.pack(pady=20)
+
     def setup_homepage(self):
         # Clear existing content
         for widget in self.master.winfo_children():
@@ -545,7 +724,8 @@ class MainPage:
 
         # Add components for the home page
         welcome_label = tk.Label(self.master, text="Welcome to Our Bridal Boutique!",
-                                 font=("Lucida Calligraphy", 36), bg='#FFF8E7', fg='black')
+
+                                 font=("Lucida Calligraphy", 36), bg='#FEF0EF', fg='black')
         welcome_label.pack(pady=20)
 
         login_button = tk.Button(self.master, text="Login", command=self.open_login, width=20, height=4,
@@ -622,12 +802,14 @@ class MainPage:
             widget.destroy()
 
         # Title label for the styles page
-        self.label = tk.Label(self.master, text="Choose Your Style", font=("Lucida Calligraphy", 48), bg='#FFF8E7',
+
+        self.label = tk.Label(self.master, text="Choose Your Style", font=("Lucida Calligraphy", 48), bg='#FEF0EF',
                               fg='black')
         self.label.pack(pady=20)
 
         # Frame for styles
-        styles_frame = tk.Frame(self.master, bg='#FFF8E7')
+
+        styles_frame = tk.Frame(self.master, bg='#FEF0EF')
         styles_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
         # Data for each style box
@@ -642,7 +824,8 @@ class MainPage:
         for style, description in styles_data:
             self.create_style_box(styles_frame, style, description)
 
-            # Back Button
+
+        # Back Button
         back_button = tk.Button(self.master, text="Back", font=("Lucida Calligraphy", 18),
                                 command=self.show_main_page)
         back_button.pack(pady=10)
@@ -679,6 +862,7 @@ class EmployeeUpdatePage:
     def __init__(self, master, employee_id):
         self.master = master
         self.employee_id = employee_id
+
         self.master.title("Employee Update Options")
         self.master.geometry("1280x720")
         self.master.configure(bg='#FDE1DE')  # Cream background
@@ -754,6 +938,7 @@ class EmployeeUpdatePage:
         root = tk.Toplevel()
         app = UpdateEmployeeInfoPage(root, self.employee_id)
         root.mainloop()
+
 
     def update_wedding_info(self):
         # Placeholder function to navigate to update wedding database information page
@@ -921,6 +1106,68 @@ class CustomerLoginPage:
         self.message = tk.Label(self.frame, text="", fg="red", bg='#FDE1DE')
         self.message.pack()
         
+        self.master.geometry("1280x1920")
+        self.master.configure(bg='#FEF0EF')  # Cream background
+
+        self.label_login = tk.Label(master, text="Login", font=("Lucida Calligraphy", 12, "bold"), bg='#FEF0EF',
+                                    fg='black')
+        self.label_login.pack(pady=10)
+
+        self.label_username = tk.Label(master, text="Username:", font=("Lucida Calligraphy", 12), bg='#FEF0EF',
+                                       fg='black')
+        self.label_username.pack()
+
+        self.entry_username = tk.Entry(master, bg='white', fg='black')
+        self.entry_username.pack()
+
+        self.label_password = tk.Label(master, text="Password:", font=("Lucida Calligraphy", 12), bg='#FEF0EF',
+                                       fg='black')
+        self.label_password.pack()
+
+        self.entry_password = tk.Entry(master, show="*", bg='white', fg='black')
+        self.entry_password.pack()
+
+        self.login_button = tk.Button(master, text="Login", command=self.login, bg='white', fg='black')
+        self.login_button.pack(pady=10)
+
+        self.label_signup = tk.Label(master, text="Sign Up", font=("Lucida Calligraphy", 12, "bold"), bg='#FEF0EF',
+                                     fg='black')
+        self.label_signup.pack(pady=10)
+
+        self.label_new_username = tk.Label(master, text="New Username:", font=("Lucida Calligraphy", 12), bg='#FEF0EF',
+                                           fg='black')
+        self.label_new_username.pack()
+
+        self.entry_new_username = tk.Entry(master, bg='white', fg='black')
+        self.entry_new_username.pack()
+
+        self.label_new_password = tk.Label(master, text="New Password:", font=("Lucida Calligraphy", 12), bg='#FEF0EF',
+                                           fg='black')
+        self.label_new_password.pack()
+
+        self.entry_new_password = tk.Entry(master, show="*", bg='white', fg='black')
+        self.entry_new_password.pack()
+
+        self.label_firstname = tk.Label(master, text="First Name:", font=("Lucida Calligraphy", 12), bg='#FEF0EF',
+                                        fg='black')
+        self.label_firstname.pack()
+
+        self.entry_firstname = tk.Entry(master, bg='white', fg='black')
+        self.entry_firstname.pack()
+
+        self.label_lastname = tk.Label(master, text="Last Name:", font=("Lucida Calligraphy", 12), bg='#FEF0EF',
+                                       fg='black')
+        self.label_lastname.pack()
+
+        self.entry_lastname = tk.Entry(master, bg='white', fg='black')
+        self.entry_lastname.pack()
+
+        self.signup_button = tk.Button(master, text="Sign Up", command=self.signup, bg='white', fg='black')
+        self.signup_button.pack(pady=10)
+
+        self.message = tk.Label(master, text="", fg="red", bg='#FEF0EF')
+        self.message.pack()
+
     def login(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
@@ -955,7 +1202,6 @@ class CustomerLoginPage:
                 root.mainloop()
             else:
                 self.message.config(text="Failed to sign up. Please try again.")
-
 
 class EmployeeLoginPage:
     def __init__(self, master):
@@ -1047,6 +1293,7 @@ class EmployeeLoginPage:
             self.master.destroy()  # Close the login window
             root = tk.Toplevel()  # Create a new Tkinter root window for the main page
             app = EmployeeUpdatePage(root, employee_id)  # Open the choose to edit account or database
+
             root.mainloop()  # Show the homepage
         else:
             self.message.config(text="Invalid employee ID, username, or password")
@@ -1109,6 +1356,7 @@ class HomePage:
         background_label.image = self.background_image
 
         self.label = tk.Label(master, text="H.E.M.", font=("Lucida Calligraphy", 48), bg='#E4B1AB', fg='black', pady=10,
+
                               padx=15, bd=2, relief="solid", highlightbackground="black")
         self.label.pack(pady=20)
 
