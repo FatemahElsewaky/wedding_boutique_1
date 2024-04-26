@@ -1,6 +1,7 @@
 import sqlite3
 import csv
 from prettytable import PrettyTable
+import string
 
 conn = sqlite3.connect("wedding_users.db")
 c = conn.cursor()
