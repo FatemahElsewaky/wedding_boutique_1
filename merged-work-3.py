@@ -170,7 +170,7 @@ class ProfilePage:
                     entry.place(x=640 - 100, y=150 + row * 30, anchor="w")
                     self.entry_fields[key] = entry
 
-                    edit_button = tk.Button(master, text="Edit", command=lambda k=key: self.edit_field(k),
+                    edit_button = tk.Button(master, text="Update", command=lambda k=key: self.edit_field(k),
                                              bg='#FDE1DE', fg='black', font=("Lucida Calligraphy", 14))
                     edit_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
 
@@ -196,7 +196,7 @@ class ProfilePage:
                     entry.place(x=640 - 100, y=150 + row * 30, anchor="w")
                     self.entry_fields[field] = entry
 
-                    edit_button = tk.Button(master, text="Edit", command=lambda k=field: self.edit_field(k),
+                    edit_button = tk.Button(master, text="Update", command=lambda k=field: self.edit_field(k),
                                             bg='#FDE1DE', fg='black', font=("Lucida Calligraphy", 14))
                     edit_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
 
@@ -738,68 +738,79 @@ class CustomerLoginPage:
     def __init__(self, master):
         self.master = master
         self.master.title("Login / Sign Up")
-        self.master.geometry("1280x1920")
-        self.master.configure(bg='#FFF8E7')  # Cream background
+        self.master.geometry("1280x720")  # Adjusted height for better visibility
+        self.master.configure(bg='#FDE1DE')  # Cream background
 
-        self.label_login = tk.Label(master, text="Login", font=("Lucida Calligraphy", 12, "bold"), bg='#FFF8E7',
+        # Add a frame to contain all the login elements
+        self.frame = tk.Frame(master, bg='#FDE1DE')
+        self.frame.pack(fill=tk.BOTH, expand=True)
+
+        # Create and place the "Login" label
+        self.label_login = tk.Label(self.frame, text="Login", font=("Lucida Calligraphy", 24, "bold"), bg='#FDE1DE',
                                     fg='black')
-        self.label_login.pack(pady=10)
+        self.label_login.pack(pady=(20, 10))
 
-        self.label_username = tk.Label(master, text="Username:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+        # Create and place the "Username" label and entry
+        self.label_username = tk.Label(self.frame, text="Username:", font=("Lucida Calligraphy", 16), bg='#FDE1DE',
                                        fg='black')
         self.label_username.pack()
-
-        self.entry_username = tk.Entry(master, bg='white', fg='black')
+        self.entry_username = tk.Entry(self.frame, bg='white', fg='black', font=("Lucida Calligraphy", 16))
         self.entry_username.pack()
 
-        self.label_password = tk.Label(master, text="Password:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
+        # Create and place the "Password" label and entry
+        self.label_password = tk.Label(self.frame, text="Password:", font=("Lucida Calligraphy", 16), bg='#FDE1DE',
                                        fg='black')
         self.label_password.pack()
-
-        self.entry_password = tk.Entry(master, show="*", bg='white', fg='black')
+        self.entry_password = tk.Entry(self.frame, show="*", bg='white', fg='black', font=("Lucida Calligraphy", 16))
         self.entry_password.pack()
 
-        self.login_button = tk.Button(master, text="Login", command=self.login, bg='white', fg='black')
+        # Create and place the "Login" button
+        self.login_button = tk.Button(self.frame, text="Login", command=self.login, bg='white', fg='black',
+                                      font=("Lucida Calligraphy", 16))
         self.login_button.pack(pady=10)
 
-        self.label_signup = tk.Label(master, text="Sign Up", font=("Lucida Calligraphy", 12, "bold"), bg='#FFF8E7',
+        # Create and place the "Sign Up" label
+        self.label_signup = tk.Label(self.frame, text="Sign Up", font=("Lucida Calligraphy", 24, "bold"), bg='#FDE1DE',
                                      fg='black')
-        self.label_signup.pack(pady=10)
+        self.label_signup.pack(pady=(20, 10))
 
-        self.label_new_username = tk.Label(master, text="New Username:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
-                                           fg='black')
+        # Create and place the "New Username" label and entry
+        self.label_new_username = tk.Label(self.frame, text="New Username:", font=("Lucida Calligraphy", 16),
+                                           bg='#FDE1DE', fg='black')
         self.label_new_username.pack()
-
-        self.entry_new_username = tk.Entry(master, bg='white', fg='black')
+        self.entry_new_username = tk.Entry(self.frame, bg='white', fg='black', font=("Lucida Calligraphy", 16))
         self.entry_new_username.pack()
 
-        self.label_new_password = tk.Label(master, text="New Password:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
-                                           fg='black')
+        # Create and place the "New Password" label and entry
+        self.label_new_password = tk.Label(self.frame, text="New Password:", font=("Lucida Calligraphy", 16),
+                                           bg='#FDE1DE', fg='black')
         self.label_new_password.pack()
-
-        self.entry_new_password = tk.Entry(master, show="*", bg='white', fg='black')
+        self.entry_new_password = tk.Entry(self.frame, show="*", bg='white', fg='black', font=("Lucida Calligraphy", 16))
         self.entry_new_password.pack()
 
-        self.label_firstname = tk.Label(master, text="First Name:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
-                                        fg='black')
+        # Create and place the "First Name" label and entry
+        self.label_firstname = tk.Label(self.frame, text="First Name:", font=("Lucida Calligraphy", 16),
+                                         bg='#FDE1DE', fg='black')
         self.label_firstname.pack()
-
-        self.entry_firstname = tk.Entry(master, bg='white', fg='black')
+        self.entry_firstname = tk.Entry(self.frame, bg='white', fg='black', font=("Lucida Calligraphy", 16))
         self.entry_firstname.pack()
 
-        self.label_lastname = tk.Label(master, text="Last Name:", font=("Lucida Calligraphy", 12), bg='#FFF8E7',
-                                       fg='black')
+        # Create and place the "Last Name" label and entry
+        self.label_lastname = tk.Label(self.frame, text="Last Name:", font=("Lucida Calligraphy", 16),
+                                        bg='#FDE1DE', fg='black')
         self.label_lastname.pack()
-
-        self.entry_lastname = tk.Entry(master, bg='white', fg='black')
+        self.entry_lastname = tk.Entry(self.frame, bg='white', fg='black', font=("Lucida Calligraphy", 16))
         self.entry_lastname.pack()
 
-        self.signup_button = tk.Button(master, text="Sign Up", command=self.signup, bg='white', fg='black')
+        # Create and place the "Sign Up" button
+        self.signup_button = tk.Button(self.frame, text="Sign Up", command=self.signup, bg='white', fg='black',
+                                       font=("Lucida Calligraphy", 16))
         self.signup_button.pack(pady=10)
 
-        self.message = tk.Label(master, text="", fg="red", bg='#FFF8E7')
+        # Error message label
+        self.message = tk.Label(self.frame, text="", fg="red", bg='#FDE1DE')
         self.message.pack()
-
+        
     def login(self):
         username = self.entry_username.get()
         password = self.entry_password.get()
