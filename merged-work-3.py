@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, Button
 from PIL import ImageTk, Image
 from tkmacosx import Button
 from database_code import *
@@ -115,6 +115,12 @@ class DressPage:
     def go_to_checkout(self):
         # Placeholder function to navigate to checkout page
         print("Navigating to checkout page")
+        checkout_window = tk.Toplevel(self.master)
+        checkout_window.geometry("800x600")
+        checkout_window.title("Checkout")
+        checkout_page = CheckoutPage(checkout_window, "user1")
+        # Example usage
+
 
     def go_to_previous_page(self):
         # Placeholder function to navigate to the previous page
@@ -123,6 +129,95 @@ class DressPage:
         self.master.destroy()
         # Show the wedding dresses page
         self.main_page.show_wedding_dresses()
+
+class CheckoutPage:
+    def __init__(self, master, username):
+        self.master = master
+        self.username = username
+        self.master.title("Checkout")
+        self.master.geometry("800x600")  # Adjusted height for better visibility
+        self.master.configure(bg='#FDE1DE')
+
+        # Fetch user data from the database
+        self.user_data = fetch_user_data(username)
+        self.entry_fields = {}
+        self.labels = {}
+
+        
+        if self.user_data:
+            # Display username in a better position
+            username_label = tk.Label(self.master, text=f"Username: {self.user_data['username']}",
+                                      font=("Brush Script MT", 20), bg='#FDE1DE', fg='black')
+            username_label.pack(pady=10)
+
+            # Adding more separation
+            separator2 = tk.Frame(self.master, height=2, bd=1, relief="groove", bg='black')
+            separator2.pack(fill="x", padx=20, pady=10)
+
+            # Shipping Information
+            shipping_label = tk.Label(self.master, text="Shipping Information", font=("Lucida Calligraphy", 24),
+                                      bg="#FDE1DE", fg="black")
+            shipping_label.pack(pady=20)
+
+            address_label = tk.Label(self.master, text="Address", font=("Brush Script MT", 16), bg='#FDE1DE', fg='black')
+            address_label.place(x=400 - 150, y=150 + 10, anchor="e")
+            
+            address_entry = tk.Entry(self.master, font=("Arial", 12), bg='white', fg='black')
+            address_entry.place(x=400 - 100, y=150 + 10, anchor="w")
+
+            address_button = tk.Button(self.master, text="Enter", bg='#FDE1DE', fg='black', font=("Lucida Calligraphy", 14))
+            address_button.place(x=400 + 100, y=150 + 10, anchor="w")
+
+            # Billing Information
+            billing_label = tk.Label(self.master, text="Billing Information", font=("Lucida Calligraphy", 24),
+                                      bg="#FDE1DE", fg="black")
+            billing_label.pack(pady=40)
+
+            row = 4
+            payment_fields = ["credit_card_num", "CVC", "expiration_date"]
+            for field in payment_fields:
+                label = tk.Label(self.master, text=f"{field.replace('_', ' ').title()}: ",
+                                 font=("Brush Script MT", 16),
+                                 bg='#FDE1DE', fg='black')
+                label.place(x=400 - 150, y=150 + row * 30, anchor="e")
+                self.labels[field] = label
+
+
+                entry = tk.Entry(self.master, font=("Arial", 12), bg='white', fg='black')
+                entry.insert(0, self.user_data.get(field, ""))  # Insert data if available, else empty string
+                entry.place(x=400 - 100, y=150 + row * 30, anchor="w")
+                self.entry_fields[field] = entry
+
+                edit_button = tk.Button(self.master, text="Enter", command=lambda k=field: self.update_payment_info(k),
+                                        bg='#FDE1DE', fg='black', font=("Lucida Calligraphy", 14))
+                edit_button.place(x=400 + 100, y=150 + row * 30, anchor="w")
+
+                row += 1
+
+        else:
+            # Display message if user data is not found
+            error_label = tk.Label(self.master, text="User data not found", font=("Arial", 20), bg='#FDE1DE', fg='red')
+            error_label.pack(pady=20)
+
+        # Place Order Button
+        place_order_button = tk.Button(self.master, text="Place Order", command=self.place_order,
+                                       font=("Lucida Calligraphy", 20), bg='#FDE1DE', fg='black')
+        place_order_button.place(x=375, y=150 + (row + 2) * 30, anchor="n")
+
+    def place_order(self):
+        # Placeholder function to place the order
+        print("Placing order...")
+        # Here you would add the logic to insert the order into the database
+
+    def update_payment_info(self, field):
+        entry = self.entry_fields[field]
+        new_value = entry.get()
+        if field in ["credit_card_num", "CVC", "expiration_date"]:
+            update_user_data(self.username, field, new_value)
+            self.labels[field].config(text=f"{field.replace('_', ' ').title()}: {new_value}")
+
+        else:
+            messagebox.showwarning("Warning", "Only payment-related fields can be updated here!")
 
 
 class ProfilePage:
