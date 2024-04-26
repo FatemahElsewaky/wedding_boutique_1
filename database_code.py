@@ -510,3 +510,24 @@ def delete_wedding_dress(upc):
         conn.rollback()
         return False
 
+
+def fetch_order_data(username):
+    # Fetch order data from the database based on the username
+    c.execute(
+        "SELECT * FROM orders WHERE user_id=?",
+        (username,))
+    order_data = c.fetchall()
+
+    orders = []
+    for order_row in order_data:
+        order = {
+            'order_num': order_row[0],
+            'user_id': order_row[1],
+            'wedding_dress_upc': order_row[2],
+            'tracking_id': order_row[3],
+            'arrival_status': order_row[4]
+        }
+        orders.append(order)
+
+    return orders
+
