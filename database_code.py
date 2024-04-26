@@ -1,10 +1,10 @@
 import sqlite3
 import csv
 from prettytable import PrettyTable
+import string
 
 conn = sqlite3.connect("wedding_users.db")
 c = conn.cursor()
-
 
 # Enable foreign key support
 c.execute("PRAGMA foreign_keys = ON;")
@@ -83,7 +83,6 @@ c.execute(
           )"""
 )
 
-
 # Create reviews table
 c.execute(
     """CREATE TABLE IF NOT EXISTS reviews (
@@ -92,8 +91,7 @@ c.execute(
           comment TEXT,
           stars INTEGER,
           PRIMARY KEY (user_id, wedding_dress_upc),
-          FOREIGN KEY (user_id) REFERENCES users(username) ON DELETE CASCADE,
-          FOREIGN KEY (wedding_dress_upc) REFERENCES wedding_dress(upc) ON DELETE CASCADE
+          FOREIGN KEY (user_id) REFERENCES users(username) ON DELETE CASCADE
           )"""
 )
 
@@ -109,6 +107,7 @@ c.execute(
           FOREIGN KEY (wedding_dress_upc) REFERENCES wedding_dress(upc) ON DELETE CASCADE
           )"""
 )
+
 
 # # Create dress information view as a user
 # c.execute(
@@ -173,10 +172,11 @@ def display_table_data():
         print(f"\nTable: {table[0]}")
         print(table_data)
 
+
 # Call the function to display table data
 display_table_data()
 
-# Function to display view data in a table format
+
 def display_view_data(view_name):
     try:
         # Fetch all rows from the view
@@ -206,11 +206,10 @@ def display_view_data(view_name):
         print(f"Error displaying data from the view {view_name}: {e}")
 
 
-# Call the function to display view data
+# Example usage:
 display_view_data("dress_info_users")
 display_view_data("dress_info_employee")
 display_view_data("users_info")
-
 
 
 # Log in query (user)
@@ -236,7 +235,7 @@ def e_check_login(employee_id, username, password):
 
 
 # Sign up query
-def create_user(username, password, first_name, last_name,address_1, email, phone_number, order_history):
+def create_user(username, password, first_name, last_name, address_1, email, phone_number, order_history):
     """Returns True if the user was successfully created, False otherwise"""
     try:
         with conn:
@@ -258,6 +257,7 @@ def create_user(username, password, first_name, last_name,address_1, email, phon
     except sqlite3.Error as error:
         print("Failed to add user into sqlite table:", error)
         return False
+
 
 # Delete the user
 def delete_user(username):
