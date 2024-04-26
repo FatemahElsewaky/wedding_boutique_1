@@ -207,6 +207,27 @@ class ProfilePage:
             error_label = tk.Label(master, text="User data not found", font=("Arial", 20), bg='#FDE1DE', fg='red')
             error_label.pack(pady=20)
 
+        # ADDED CODE
+        # Fetch order data from the database
+        self.order_data = fetch_order_data(username)
+
+        if self.order_data:
+            row = 10
+            # Display the order information in the middle of the page
+            self.entry_fields = {}
+            self.labels = {}
+            for order in self.order_data:
+                for key, value in order.items():
+                    label = tk.Label(master, text=f"{key.replace('_', ' ').title()}: {value}",
+                                         font=("Brush Script MT", 20), bg='#FDE1DE', fg='black')
+                    label.place(x=640, y=150 + row * 30, anchor="center")  # Adjusted position and font size
+                    row += 1
+
+        else:
+            # Display message if order data is not found
+            error_label = tk.Label(master, text="Order data not found", font=("Arial", 20), bg='#FDE1DE', fg='black')
+            error_label.pack(pady=20)
+
     def edit_field(self, field):
         entry = self.entry_fields[field]  # Retrieve the entry field associated with the edited value
         new_value = entry.get()
@@ -242,6 +263,7 @@ class MainPage:
         # Add options to the account menu
         self.account_menu.menu.add_command(label="Profile", command=self.show_profile)
         self.account_menu.menu.add_command(label="Logout", command=self.logout)
+
 
         self.account_menu.pack(side=tk.RIGHT, padx=10)
         # Configure button style to remove button shape
