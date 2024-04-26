@@ -130,7 +130,7 @@ class ProfilePage:
         self.master = master
         self.master.title("User Profile")
         self.master.geometry("1280x800")  # Adjusted height for better visibility
-        self.master.configure(bg='#FDE1DE')  # Cream background
+        self.master.configure(bg='#FFF8E7')  # Cream background
 
         # Fetch user data from the database
         self.user_data = fetch_user_data(username)
@@ -138,7 +138,7 @@ class ProfilePage:
         if self.user_data:
             # Display name and last name in a bigger font at the top center
             name_label = tk.Label(master, text=f"{self.user_data['first_name']} {self.user_data['last_name']}",
-                                  font=("Lucida Calligraphy", 36), bg='#FDE1DE', fg='black')
+                                  font=("Lucida Calligraphy", 36), bg='#FFF8E7', fg='black')
             name_label.pack(pady=20)
 
             # Adding a line for separation
@@ -147,7 +147,7 @@ class ProfilePage:
 
             # Display username in a better position
             username_label = tk.Label(master, text=f"Username: {self.user_data['username']}",
-                                      font=("Brush Script MT", 20), bg='#FDE1DE', fg='black')
+                                      font=("Brush Script MT", 20), bg='#FFF8E7', fg='black')
             username_label.pack(pady=10)
 
             # Adding more separation
@@ -161,7 +161,7 @@ class ProfilePage:
             for key, value in self.user_data.items():
                 if key not in ["first_name", "last_name", "username", "payment_id"]:
                     label = tk.Label(master, text=f"{key.replace('_', ' ').title()}: ", font=("Brush Script MT", 16),
-                                     bg='#FDE1DE', fg='black')
+                                     bg='#FFF8E7', fg='black')
                     label.place(x=640 - 150, y=150 + row * 30, anchor="e")
                     self.labels[key] = label
 
@@ -170,8 +170,7 @@ class ProfilePage:
                     entry.place(x=640 - 100, y=150 + row * 30, anchor="w")
                     self.entry_fields[key] = entry
 
-                    edit_button = tk.Button(master, text="Edit", command=lambda k=key: self.edit_field(k),
-                                            bg='#FDE1DE', fg='black', font=("Lucida Calligraphy", 14))
+                    edit_button = tk.Button(master, text="Edit", command=lambda k=key: self.edit_field(k))
                     edit_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
 
                     row += 1
@@ -179,7 +178,7 @@ class ProfilePage:
             # Add payment information fields
             if 'payment_id' in self.user_data and self.user_data['payment_id']:
                 payment_label = tk.Label(master, text="Payment Information", font=("Lucida Calligraphy", 20),
-                                         bg='#FDE1DE', fg='black')
+                                         bg='#FFF8E7', fg='black')
                 payment_label.place(x=640, y=150 + row * 30, anchor="n")
 
                 row += 1
@@ -187,7 +186,7 @@ class ProfilePage:
                 for field in payment_fields:
                     label = tk.Label(master, text=f"{field.replace('_', ' ').title()}: ",
                                      font=("Brush Script MT", 16),
-                                     bg='#FDE1DE', fg='black')
+                                     bg='#FFF8E7', fg='black')
                     label.place(x=640 - 150, y=150 + row * 30, anchor="e")
                     self.labels[field] = label
 
@@ -196,8 +195,7 @@ class ProfilePage:
                     entry.place(x=640 - 100, y=150 + row * 30, anchor="w")
                     self.entry_fields[field] = entry
 
-                    edit_button = tk.Button(master, text="Edit", command=lambda k=field: self.edit_field(k),
-                                            bg='#FDE1DE', fg='black', font=("Lucida Calligraphy", 14))
+                    edit_button = tk.Button(master, text="Edit", command=lambda k=field: self.edit_field(k))
                     edit_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
 
                     row += 1
@@ -285,7 +283,6 @@ class MainPage:
         # Add options to the account menu
         self.account_menu.menu.add_command(label="Profile", command=self.show_profile)
         self.account_menu.menu.add_command(label="Logout", command=self.logout)
-
 
         self.account_menu.pack(side=tk.RIGHT, padx=10)
         # Configure button style to remove button shape
@@ -610,209 +607,9 @@ class MainPage:
         root.mainloop()
 
 
-class UploadPage:
+class EmployeeUpdatePage:
     def __init__(self, master):
         self.master = master
-        self.master.title("Upload Wedding Dresses")
-        self.master.geometry("800x800")
-        self.master.configure(bg='#FDE1DE')  # Cream background
-
-        self.label = tk.Label(master, text="Upload Wedding Dresses", font=("Lucida Calligraphy", 24), bg='#FDE1DE',
-                              fg='black')
-        self.label.pack(pady=20)
-
-        # Create button to trigger upload
-        self.upload_button = tk.Button(master, text="Upload Dresses", command=self.open_dress_info_window,
-                                       bg='white', fg='black',
-                                       font=("Lucida Calligraphy", 18), width=25, height=4,
-                                       bd=1, relief="solid", highlightbackground="black")
-        self.upload_button.pack(pady=10)
-
-        # Create button to open window for updating wedding dress table
-        self.update_button = tk.Button(master, text="Update Wedding Dresses", command=self.open_update_window,
-                                       bg='white', fg='black',
-                                       font=("Lucida Calligraphy", 18), width=25, height=4,
-                                       bd=1, relief="solid", highlightbackground="black")
-        self.update_button.pack(pady=10)
-
-        # Create button to add new dress
-        self.add_button = tk.Button(master, text="Add Dress", command=self.open_add_window, bg='white', fg='black',
-                                    font=("Lucida Calligraphy", 18), width=25, height=4,
-                                    bd=1, relief="solid", highlightbackground="black")
-        self.add_button.pack(pady=10)
-
-        # Create button to delete dress
-        self.delete_button = tk.Button(master, text="Delete Dress", command=self.open_delete_window,
-                                       bg='white', fg='black',
-                                       font=("Lucida Calligraphy", 18), width=25, height=4,
-                                       bd=1, relief="solid", highlightbackground="black")
-        self.delete_button.pack(pady=10)
-
-    def open_dress_info_window(self):
-        # Create a new window for dress information
-        dress_info_window = tk.Toplevel(self.master)
-        dress_info_window.title("Dress Info Employee")
-
-        # Create a treeview to display the dress info in a table
-        tree = ttk.Treeview(dress_info_window)
-        tree["columns"] = (
-            "UPC", "Name", "Price", "Color", "Description", "Elegant", "Vintage", "Princess", "Boho", "C1", "C2")
-        for col in tree["columns"]:
-            tree.heading(col, text=col)
-            tree.column(col, anchor="center")
-
-        # Fetch dress info as dictionaries
-        dress_info = fetch_dress_info_employee()
-        for i, dress in enumerate(dress_info, start=1):
-            tree.insert("", "end", text=str(i), values=list(dress.values()))
-
-        # Adjust column widths based on content
-        for col in tree["columns"]:
-            tree.heading(col, text=col, command=lambda _col=col: self.sort_column(tree, _col, False))
-            max_width = max(len(tree.set(child, col)) for child in tree.get_children())
-            tree.column(col, width=max_width * 10)  # Adjust the multiplier as needed
-
-        tree.pack(expand=True, fill=tk.BOTH)
-
-    def open_update_window(self):
-        # Create new window for updating dress info
-        update_window = tk.Toplevel(self.master)
-        update_window.title("Update Wedding Dress")
-        update_window.geometry("600x600")
-        update_window.configure(bg='#FDE1DE')
-
-        labels = ["UPC", "Name", "Price", "Color", "Description", "Elegant", "Vintage", "Princess", "Boho", "C1", "C2"]
-        self.entries = []
-
-        # Create entry boxes associated with labels in two columns
-        for i, label_text in enumerate(labels):
-            row = i // 2  # Calculate row index
-            column = i % 2  # Calculate column index
-            label = tk.Label(update_window, text=label_text, font=("Arial", 12), bg='#FDE1DE', fg='black')
-            label.grid(row=row, column=column * 2, padx=5, pady=5)
-            entry = tk.Entry(update_window, font=("Arial", 12))
-            entry.grid(row=row, column=column * 2 + 1, padx=5, pady=5)
-            self.entries.append(entry)
-        update_button = tk.Button(update_window, text="Update", command=self.update_dress,
-                                  bg='white', fg='black',
-                                  font=("Lucida Calligraphy", 16), width=6, height=2,
-                                  bd=1, relief="solid", highlightbackground="black"
-                                  )
-        update_button.grid(row=(len(labels) + 1) // 2, column=0, columnspan=2, pady=20)  # Span across two columns
-
-    def update_dress(self):
-        # Get data from entry widgets
-        data = [entry.get() for entry in self.entries]
-
-        # Extract specific fields from data
-        upc, name, price, color = data[:4]
-
-        # Check if any of the required fields are empty
-        if not (upc and name and price and color):
-            messagebox.showerror("Error", "Please fill in all required fields (UPC, Name, Price, Color)")
-            return
-        # Print the data for debugging
-        print("Data to be updated:", data)
-
-        # Call the updatedress function with extracted data
-        success = updatedress(*data)
-
-        #Check if the update was successful
-        if success:
-            messagebox.showinfo("Success", "Dress updated successfully")
-        else:
-            messagebox.showerror("Error", "Failed to update dress")
-
-    def open_add_window(self):
-        # Create new window for updating dress info
-        update_window = tk.Toplevel(self.master)
-        update_window.title("Add Wedding Dress")
-        update_window.geometry("600x600")
-        update_window.configure(bg='#FDE1DE')
-
-        labels = ["UPC", "Name", "Price", "Color", "Description", "Elegant", "Vintage", "Princess", "Boho", "C1", "C2"]
-        self.entries = []
-
-        # Create entry boxes associated with labels in two columns
-        for i, label_text in enumerate(labels):
-            row = i // 2  # Calculate row index
-            column = i % 2  # Calculate column index
-            label = tk.Label(update_window, text=label_text, font=("Arial", 12), bg='#FDE1DE', fg='black')
-            label.grid(row=row, column=column * 2, padx=5, pady=5)
-            entry = tk.Entry(update_window, font=("Arial", 12))
-            entry.grid(row=row, column=column * 2 + 1, padx=5, pady=5)
-            self.entries.append(entry)
-        update_button = tk.Button(update_window, text="Add", command=self.add_dress,
-                                  bg='white', fg='black',
-                                  font=("Lucida Calligraphy", 16), width=6, height=2,
-                                  bd=1, relief="solid", highlightbackground="black"
-                                  )
-        update_button.grid(row=(len(labels) + 1) // 2, column=0, columnspan=2, pady=20)  # Span across two columns
-
-    def add_dress(self):
-        # Get data from entry widgets
-        data = [entry.get() for entry in self.entries]
-
-        # Extract specific fields from data
-        upc, name, price, color = data[:4]
-
-        # Check if any of the required fields are empty
-        if not (upc and name and price and color):
-            messagebox.showerror("Error", "Please fill in all required fields (UPC, Name, Price, Color)")
-            return
-        # Print the data for debugging
-        print("Data to be added:", data)
-
-        # Call the add_wedding_dress function with extracted data
-        success = add_wedding_dress(*data)
-
-        #Check if the added was successful
-        if success:
-            messagebox.showinfo("Success", "Dress added successfully")
-        else:
-            messagebox.showerror("Error", "Failed to added dress")
-
-    def open_delete_window(self):
-        # Create new window for deleting dress
-        delete_window = tk.Toplevel(self.master)
-        delete_window.title("Delete Wedding Dress")
-        delete_window.geometry("300x200")
-        delete_window.configure(bg='#FDE1DE')
-
-        # Create label and entry for UPC
-        upc_label = tk.Label(delete_window, text="UPC:", font=("Arial", 12), bg='#FDE1DE', fg='black')
-        upc_label.pack(pady=10)
-        self.upc_entry = tk.Entry(delete_window, font=("Arial", 12))
-        self.upc_entry.pack(pady=5)
-
-        # Create button to delete dress
-        delete_button = tk.Button(delete_window, text="Delete", command=self.delete_dress, bg='white', fg='black',
-                                  font=("Lucida Calligraphy", 16), width=6, height=2,
-                                  bd=1, relief="solid", highlightbackground="black"
-                                  )
-        delete_button.pack(pady=10)
-
-    def delete_dress(self):
-        # Get UPC from entry widget
-        upc = self.upc_entry.get()
-
-        if not upc:
-            messagebox.showerror("Error", "Please fill in all required fields (UPC)")
-            return
-
-        success = delete_wedding_dress(upc)
-
-        # Check if the deletion was successful
-        if success:
-            messagebox.showinfo("Success", "Dress deleted successfully")
-        else:
-            messagebox.showerror("Error", "Failed to deleted dress")
-
-
-class EmployeeUpdatePage:
-    def __init__(self, master, employee_id):
-        self.master = master
-        self.employee_id = employee_id
         self.master.title("Employee Update Options")
         self.master.geometry("1280x720")
         self.master.configure(bg='#FDE1DE')  # Cream background
@@ -849,115 +646,16 @@ class EmployeeUpdatePage:
         self.footer = create_footer(master)
 
     def update_customer_info(self):
-        # Create a pop-up window to ask for the customer's username
-        popup = tk.Toplevel(self.master)
-        popup.title("Enter Customer Username")
-        popup.geometry("400x200")
-        popup.configure(bg='#FDE1DE')  # Use the same pink shade as the employee login page
-
-        # Label and Entry for entering the customer's username
-        label_username = tk.Label(popup, text="Enter Customer Username:", font=("Lucida Calligraphy", 14), bg='#FDE1DE',
-                                  fg='black')
-        label_username.pack(pady=10)
-        entry_username = tk.Entry(popup, bg='white', fg='black', font=("Lucida Calligraphy", 14))
-        entry_username.pack(pady=5)
-
-        # Function to handle submitting the username
-        def submit_username():
-            username = entry_username.get()
-            if username:
-                popup.destroy()  # Close the pop-up window
-                # Proceed to the profile page with the entered username
-                root = tk.Toplevel()
-                app = ProfilePage(root, username)
-                root.mainloop()
-            else:
-                messagebox.showerror("Error", "Please enter a username.")
-
-        # Button to submit the username
-        submit_button = tk.Button(popup, text="Submit", command=submit_username, bg='white', fg='black',
-                                  font=("Lucida Calligraphy", 14))
-        submit_button.pack(pady=10)
-
-        # Keep the pop-up window open until closed
-        popup.mainloop()
+        # Placeholder function to navigate to update customer information page
+        print("Navigate to update customer information page")
 
     def update_employee_info(self):
         # Placeholder function to navigate to update employee information page
         print("Navigate to update employee information page")
-        root = tk.Toplevel()
-        app = UpdateEmployeeInfoPage(root, self.employee_id)
-        root.mainloop()
 
     def update_wedding_info(self):
-        root = tk.Toplevel()  # Create a new Tkinter root window for the main page
-        app = UploadPage(root)  # Open the choose to edit account or database
-        root.mainloop()
-
-
-class UpdateEmployeeInfoPage:
-    def __init__(self, master, employee_id):
-        self.master = master
-        self.master.title("Update Employee Information")
-        self.master.geometry("1280x800")  # Adjusted height for better visibility
-        self.master.configure(bg='#FDE1DE')  # Cream background
-
-        # Fetch employee data from the database
-        self.employee_data = fetch_employee_data(employee_id)
-
-        if self.employee_data:
-            # Display employee name in a bigger font at the top center
-            name_label = tk.Label(master, text=f"{self.employee_data['first_name']} {self.employee_data['last_name']}",
-                                  font=("Lucida Calligraphy", 36), bg='#FDE1DE', fg='black')
-            name_label.pack(pady=20)
-
-            # Display employee username
-            username_label = tk.Label(master, text=f"Username: {self.employee_data['username']}",
-                                      font=("Brush Script MT", 20), bg='#FDE1DE', fg='black')
-            username_label.pack()
-
-            # Display employee ID
-            employee_id_label = tk.Label(master, text=f"Employee ID: {self.employee_data['employee_id']}",
-                                         font=("Brush Script MT", 20), bg='#FDE1DE', fg='black')
-            employee_id_label.pack()
-
-            # Adding a line for separation
-            separator1 = tk.Frame(master, height=2, bd=1, relief="groove", bg='black')
-            separator1.pack(fill="x", padx=20, pady=10)
-
-            row = 3
-            # Display the rest of the information in the middle of the page
-            self.entry_fields = {}
-            self.labels = {}
-            fields_to_update = ["email", "phone_number", "address"]
-            for field in fields_to_update:
-                label = tk.Label(master, text=f"{field.replace('_', ' ').title()}: ", font=("Brush Script MT", 16),
-                                 bg='#FDE1DE', fg='black')
-                label.place(x=640 - 150, y=150 + row * 30, anchor="e")
-                self.labels[field] = label
-
-                entry = tk.Entry(master, font=("Arial", 12), bg='white', fg='black')
-                entry.insert(0, self.employee_data.get(field, ""))  # Insert data if available, else empty string
-                entry.place(x=640 - 100, y=150 + row * 30, anchor="w")
-                self.entry_fields[field] = entry
-
-                update_button = tk.Button(master, text="Update", command=lambda k=field: self.update_field(k),
-                                          bg='#FDE1DE', fg='black', font=("Lucida Calligraphy", 14))
-                update_button.place(x=640 + 100, y=150 + row * 30, anchor="w")
-
-                row += 1
-
-        else:
-            # Display message if employee data is not found
-            error_label = tk.Label(master, text="Employee data not found", font=("Arial", 20), bg='#FDE1DE', fg='red')
-            error_label.pack(pady=20)
-
-    def update_field(self, field):
-        entry = self.entry_fields[field]  # Retrieve the entry field associated with the updated value
-        new_value = entry.get()
-        update_employee_data(self.employee_data['employee_id'], field, new_value)
-        self.employee_data[field] = new_value
-        self.labels[field].config(text=f"{field.replace('_', ' ').title()}: {new_value}")
+        # Placeholder function to navigate to update wedding database information page
+        print("Navigate to update wedding database information page")
 
 
 def verify_password(password):
@@ -1171,7 +869,7 @@ class EmployeeLoginPage:
         if e_check_login(employee_id, username, password):
             self.master.destroy()  # Close the login window
             root = tk.Toplevel()  # Create a new Tkinter root window for the main page
-            app = EmployeeUpdatePage(root, employee_id)  # Open the choose to edit account or database
+            app = EmployeeUpdatePage(root)  # Open the choose to edit account or database
             root.mainloop()  # Show the homepage
         else:
             self.message.config(text="Invalid employee ID, username, or password")
