@@ -202,8 +202,6 @@ class ProfilePage:
 
                     row += 1
 
-            window_width = master.winfo_width()
-
             # Adding a line for separation after payment information
             separator3 = Canvas(master, width=1280, height=2, bg='black', highlightthickness=0)
             separator3.create_line(0, 0, 1280, 0, fill='black', width=2)
