@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, Canvas
 from PIL import ImageTk, Image
 from tkmacosx import Button
 from database_code import *
@@ -202,30 +202,52 @@ class ProfilePage:
 
                     row += 1
 
+            window_width = master.winfo_width()
+
+            # Adding a line for separation after payment information
+            separator3 = Canvas(master, width=1280, height=2, bg='black', highlightthickness=0)
+            separator3.create_line(0, 0, 1280, 0, fill='black', width=2)
+            separator3.pack(pady=10)
+            separator3.place(x=640, y=150 + 8 * 30, anchor="center")  # Adjusted position and font size
+            
+            # Adding "My Orders" label
+            orders_label = tk.Label(master, text="My Orders", font=("Lucida Calligraphy", 20), bg='#FDE1DE', fg='black')
+            orders_label.pack(pady=10)
+            orders_label.place(x=640, y=150 + 9 * 30, anchor="center")  # Adjusted position and font size
+            
+
+            # Adding a line for separation after payment information
+            separator4 = Canvas(master, width=1280, height=2, bg='black', highlightthickness=0)
+            separator4.create_line(0, 0, 1280, 0, fill='black', width=2)
+            separator4.pack(pady=10)
+            separator4.place(x=640, y=150 + 10 * 30, anchor="center")  # Adjusted position and font size
+
+
+            # Fetch order data from the database
+            self.order_data = fetch_order_data(username)
+
+            if self.order_data:
+               
+                # Adjusting the starting row for order display
+                row += 2
+                # Display the order information in the middle of the page
+                for order in self.order_data:
+                    for key, value in order.items():
+                        label = tk.Label(master, text=f"{key.replace('_', ' ').title()}: {value}",
+                                         font=("Brush Script MT", 20), bg='#FDE1DE', fg='black')
+                        label.place(x=640, y=150 + row * 30, anchor="center")  # Adjusted position and font size
+                        row += 1
+
+            else:
+                # Display message if order data is not found
+                error_label = tk.Label(master, text="No orders", font=("Arial", 20), bg='#FDE1DE', fg='black')
+                error_label.pack(pady=20)
+                error_label.place(x=640, y=150 + 12 * 30, anchor="center")  # Adjusted position and font size
+
+
         else:
             # Display message if user data is not found
             error_label = tk.Label(master, text="User data not found", font=("Arial", 20), bg='#FDE1DE', fg='red')
-            error_label.pack(pady=20)
-
-        # ADDED CODE
-        # Fetch order data from the database
-        self.order_data = fetch_order_data(username)
-
-        if self.order_data:
-            row = 10
-            # Display the order information in the middle of the page
-            self.entry_fields = {}
-            self.labels = {}
-            for order in self.order_data:
-                for key, value in order.items():
-                    label = tk.Label(master, text=f"{key.replace('_', ' ').title()}: {value}",
-                                         font=("Brush Script MT", 20), bg='#FDE1DE', fg='black')
-                    label.place(x=640, y=150 + row * 30, anchor="center")  # Adjusted position and font size
-                    row += 1
-
-        else:
-            # Display message if order data is not found
-            error_label = tk.Label(master, text="Order data not found", font=("Arial", 20), bg='#FDE1DE', fg='black')
             error_label.pack(pady=20)
 
     def edit_field(self, field):
